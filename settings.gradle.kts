@@ -14,5 +14,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "udf"
-include ':store:rxjava'
-include ':store:coroutines'
+include(":store:rxjava")
+include(":store:coroutines")
