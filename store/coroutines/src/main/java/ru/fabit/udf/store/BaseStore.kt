@@ -130,7 +130,7 @@ open class BaseStore<State, Action>(
             actionSourcesJobs.start(actionSource::class.java.simpleName) {
                 scope.launch {
                     try {
-                        actionSource().catch {
+                        actionSource(this).catch {
                             it.handleCancellationException {
                                 errorHandler.handle(it)
                                 emit(actionSource(it))
@@ -156,7 +156,7 @@ open class BaseStore<State, Action>(
             bindActionSourcesJobs.start(bindActionSource::class.java.simpleName) {
                 scope.launch {
                     try {
-                        bindActionSource(state, action).catch {
+                        bindActionSource(this, state, action).catch {
                             it.handleCancellationException {
                                 errorHandler.handle(it)
                                 emit(bindActionSource(it))
