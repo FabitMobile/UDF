@@ -8,10 +8,8 @@ java {
 }
 
 dependencies {
-    def deps = rootProject.ext.deps
-
-    implementation deps.coroutines
-    testImplementation deps.junit
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0"
+    testImplementation "junit:junit:4.13"
 }
 
 apply from: "../../kotlin_publish.gradle"

@@ -8,10 +8,8 @@ java {
 }
 
 dependencies {
-    def deps = rootProject.ext.deps
-
-    implementation deps.rxJava
-    testImplementation deps.junit
+    implementation "io.reactivex.rxjava2:rxjava:2.2.20"
+    testImplementation "junit:junit:4.13"
 }
 
 apply from: "../../kotlin_publish.gradle"

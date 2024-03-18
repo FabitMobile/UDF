@@ -1,5 +1,0 @@
-ext.deps = [
-        rxJava      : "io.reactivex.rxjava2:rxjava:2.2.20",
-        coroutines  : "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0",
-        junit       : "junit:junit:4.13"
-]
