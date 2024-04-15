@@ -1,20 +1,21 @@
 package ru.fabit.udf.store
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.onEach
 
-open class EventsStore<State : EventsState<Event>, Action, Event>(
+open class EventsStore<State, Action, Event>(
     startState: State,
-    reducer: Reducer<State, Action>,
+    private val eventsReducer: EventsReducer<State, Action, Event>,
     errorHandler: ErrorHandler,
     bootstrapAction: Action? = null,
     sideEffects: Iterable<SideEffect<State, Action>> = emptyList(),
     bindActionSources: Iterable<BindActionSource<State, Action>> = emptyList(),
-    actionSources: Iterable<ru.fabit.udf.store.ActionSource<Action>> = emptyList(),
-    actionHandlers: Iterable<ru.fabit.udf.store.ActionHandler<State, Action>> = emptyList()
-) : ru.fabit.udf.store.BaseStore<State, Action>(
+    actionSources: Iterable<ActionSource<Action>> = emptyList(),
+    actionHandlers: Iterable<ActionHandler<State, Action>> = emptyList()
+) : BaseStore<State, Action>(
     startState,
-    reducer,
+    eventsReducer,
     errorHandler,
     bootstrapAction,
     sideEffects,
@@ -22,20 +23,30 @@ open class EventsStore<State : EventsState<Event>, Action, Event>(
     actionSources,
     actionHandlers
 ) {
-    @Suppress("UNCHECKED_CAST")
-    override val state: Flow<State>
+
+    protected val _event = MutableSharedFlow<List<Event>>(replay = 1)
+    private var events: List<Event> = mutableListOf()
+
+    val event: Flow<List<Event>>
         get() {
-            _state.tryEmit(currentState)
-            return _state.onEach {
-                _currentState = currentState.clearEvents() as State
+            return _event.onEach {
+                if (it.isNotEmpty()) {
+//                    println("___TEST___ list =$it clear ")
+                    _event.tryEmit(listOf())
+                    events = listOf()
+                }
             }
         }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun reduceState(state: State, action: Action): State {
-        return if (_state.subscriptionCount.value == 0)
-            super.reduceState(state, action)
-        else
-            super.reduceState(state.clearEvents() as State, action)
+    override suspend fun reduceState(state: State, action: Action): State {
+        val wrapState = eventsReducer.reduceEvent(state, action)
+        val newState = wrapState.state
+        val newEvents = wrapState.events
+        val newList = events + newEvents
+
+        events = newList
+        _event.tryEmit(newList)
+        //        println("___TEST___ newList = $newList")
+        return newState
     }
 }

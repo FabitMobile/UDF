@@ -6,10 +6,10 @@ sealed class TestEvent {
             return "TestEvent.Event"
         }
     }
-    object Event2 : TestEvent() {
-        override fun toString(): String {
-            return "TestEvent.Event2"
-        }
+    class Event2 : TestEvent() {//todo uncomment
+//        override fun toString(): String {
+//            return "TestEvent.Event2"
+//        }
     }
     data class OrderEvent(val order: Int) : TestEvent()
 }

@@ -18,14 +18,14 @@ import kotlinx.coroutines.launch
 
 open class BaseStore<State, Action>(
     startState: State,
-    private val reducer: ru.fabit.udf.store.Reducer<State, Action>,
-    private val errorHandler: ru.fabit.udf.store.ErrorHandler,
+    private val reducer: Reducer<State, Action>,
+    private val errorHandler: ErrorHandler,
     private val bootstrapAction: Action? = null,
-    private val sideEffects: Iterable<ru.fabit.udf.store.SideEffect<State, Action>> = emptyList(),
-    private val bindActionSources: Iterable<ru.fabit.udf.store.BindActionSource<State, Action>> = emptyList(),
-    private val actionSources: Iterable<ru.fabit.udf.store.ActionSource<Action>> = emptyList(),
-    private val actionHandlers: Iterable<ru.fabit.udf.store.ActionHandler<State, Action>> = emptyList()
-) : ru.fabit.udf.store.Store<State, Action> {
+    private val sideEffects: Iterable<SideEffect<State, Action>> = emptyList(),
+    private val bindActionSources: Iterable<BindActionSource<State, Action>> = emptyList(),
+    private val actionSources: Iterable<ActionSource<Action>> = emptyList(),
+    private val actionHandlers: Iterable<ActionHandler<State, Action>> = emptyList()
+) : Store<State, Action> {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -102,7 +102,7 @@ open class BaseStore<State, Action>(
         }
     }
 
-    protected open fun reduceState(state: State, action: Action): State {
+    protected open suspend fun reduceState(state: State, action: Action): State {
         return reducer.reduceState(state, action)
     }
 

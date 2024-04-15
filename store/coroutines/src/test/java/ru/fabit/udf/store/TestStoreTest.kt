@@ -221,8 +221,9 @@ class TestStoreTest {
 
         val store = storeMini()
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.state.collect { state ->
-                events.add(state.events.toList())
+            store.event.collect { event ->
+                println("___TEST___ test event = $event")
+                events.add(event)
             }
         }
         delay(100)
@@ -246,15 +247,15 @@ class TestStoreTest {
 
         val store = storeMini()
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.state.collect { state ->
-                events.add(state.events.toList())
+            store.event.collect { event ->
+                events.add(event)
             }
         }
         delay(100)
         job.cancel()
         val job2 = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.state.collect { state ->
-                events.add(state.events.toList())
+            store.event.collect { event ->
+                events.add(event)
             }
         }
         delay(100)
@@ -317,7 +318,7 @@ class TestStoreTest {
 
     @Test
     fun cleaning_event_test() = runBlocking {
-        val events = mutableListOf<TestEvent>()
+        val events = mutableSetOf<TestEvent>()
         val store = TestStore(
             TestState("init"),
             TestReducer(),
@@ -325,8 +326,9 @@ class TestStoreTest {
             TestAction.NoAction
         ).apply { start() }
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.state.collect { state ->
-                events.addAll(state.events.toList())
+            store.event.collect { event ->
+                println("___TEST___ test event = $event")
+                events.addAll(event)
             }
         }
         delay(1000)
@@ -334,7 +336,7 @@ class TestStoreTest {
         store.dispatchAction(TestAction.NoAction)
         store.dispatchAction(TestAction.NoAction)
         store.dispatchAction(TestAction.NoAction)
-        store.dispatchAction(TestAction.EventAction)
+        store.dispatchAction(TestAction.OrderEventAction(0))
         store.dispatchAction(TestAction.Action("Action1-1"))
         store.dispatchAction(TestAction.Action("Action1-2"))
         store.dispatchAction(TestAction.Action("Action1-3"))
@@ -348,8 +350,42 @@ class TestStoreTest {
     }
 
     @Test
+    fun cleaning_state_test() = runBlocking {
+        val store = TestStore(
+            TestState("init"),
+            TestReducer(),
+            errorHandler,
+            TestAction.NoAction
+        ).apply { start() }
+        var textResult = ""
+        val jobState = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            store.state.collect { state ->
+                println("___TEST___ state = $state")
+                textResult = state.value
+            }
+        }
+        delay(1000)
+        store.dispatchAction(TestAction.EventAction)
+        store.dispatchAction(TestAction.NoAction)
+        store.dispatchAction(TestAction.NoAction)
+        store.dispatchAction(TestAction.NoAction)
+        store.dispatchAction(TestAction.EventAction)
+        store.dispatchAction(TestAction.Action("Action1-1"))
+        store.dispatchAction(TestAction.Action("Action1-2"))
+        store.dispatchAction(TestAction.Action("Action1-3"))
+        delay(100)
+
+        Assert.assertEquals(
+            "Action1-3",
+            textResult
+        )
+        store.dispose()
+        jobState.cancel()
+    }
+
+    @Test
     fun order_merging_events() = runBlocking {
-        val events = mutableListOf<TestEvent.OrderEvent>()
+        val events = mutableListOf<TestEvent>()
         val store = TestStore(
             TestState("init"),
             TestReducer(),
@@ -364,14 +400,14 @@ class TestStoreTest {
         store.dispatchAction(TestAction.OrderEventAction(3))
         delay(100)
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.state.collect { state ->
-                events.addAll(state.events.filterIsInstance<TestEvent.OrderEvent>().toList())
+            store.event.collect { event ->
+                events.addAll(event)
             }
         }
         delay(100)
         Assert.assertEquals(
-            listOf(0,1,2,3),
-            events.map { it.order }
+            listOf(0, 1, 2, 3),
+            events.map { (it as TestEvent.OrderEvent).order }
         )
         store.dispose()
         job.cancel()

@@ -7,8 +7,8 @@ class TestStore(
     reducer: TestReducer,
     errorHandler: ErrorHandler,
     bootStrapAction: TestAction,
-    actionHandlers: Iterable<ru.fabit.udf.store.ActionHandler<TestState, TestAction>> = CopyOnWriteArrayList(),
-    actionSources: Iterable<ru.fabit.udf.store.ActionSource<TestAction>> = CopyOnWriteArrayList(),
+    actionHandlers: Iterable<ActionHandler<TestState, TestAction>> = CopyOnWriteArrayList(),
+    actionSources: Iterable<ActionSource<TestAction>> = CopyOnWriteArrayList(),
     bindActionSources: Iterable<BindActionSource<TestState, TestAction>> = CopyOnWriteArrayList(),
     sideEffects: Iterable<SideEffect<TestState, TestAction>> = CopyOnWriteArrayList()
 ) : EventsStore<TestState, TestAction, TestEvent>(
