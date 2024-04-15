@@ -222,7 +222,6 @@ class TestStoreTest {
         val store = storeMini()
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.event.collect { event ->
-                println("___TEST___ test event = $event")
                 events.add(event)
             }
         }
@@ -327,7 +326,6 @@ class TestStoreTest {
         ).apply { start() }
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.event.collect { event ->
-                println("___TEST___ test event = $event")
                 events.addAll(event)
             }
         }
@@ -360,7 +358,6 @@ class TestStoreTest {
         var textResult = ""
         val jobState = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.state.collect { state ->
-                println("___TEST___ state = $state")
                 textResult = state.value
             }
         }

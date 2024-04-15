@@ -1,7 +1,7 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.viewcontroller.compose.test
 
 sealed class TestEvent {
-    object Event : TestEvent() {
+    class Event : TestEvent() {
         override fun toString(): String {
             return "TestEvent.Event"
         }
@@ -11,5 +11,4 @@ sealed class TestEvent {
             return "TestEvent.Event2"
         }
     }
-    data class OrderEvent(val order: Int) : TestEvent()
 }

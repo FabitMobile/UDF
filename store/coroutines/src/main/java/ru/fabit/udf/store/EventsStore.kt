@@ -31,7 +31,7 @@ open class EventsStore<State, Action, Event>(
         get() {
             return _event.onEach {
                 if (it.isNotEmpty()) {
-//                    println("___TEST___ list =$it clear ")
+                    //                    println("___TEST___ list =$it clear ")
                     _event.tryEmit(listOf())
                     events = listOf()
                 }
