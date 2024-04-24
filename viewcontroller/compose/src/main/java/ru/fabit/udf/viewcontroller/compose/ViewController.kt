@@ -7,14 +7,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import ru.fabit.udf.store.Store
 import kotlin.coroutines.CoroutineContext
 
 abstract class ViewController<State, Action>(
     protected val store: Store<State, Action>
 ) : ViewModel() {
-    private val state: Flow<State> = store.state
 
     init {
         store.start()
@@ -33,7 +31,7 @@ abstract class ViewController<State, Action>(
         lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
         minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
         context: CoroutineContext = Dispatchers.IO
-    ): androidx.compose.runtime.State<State> = state.collectAsStateWithLifecycle(
+    ): androidx.compose.runtime.State<State> = store.state.collectAsStateWithLifecycle(
         initialValue = store.currentState,
         lifecycle = lifecycleOwner.lifecycle,
         minActiveState = minActiveState,

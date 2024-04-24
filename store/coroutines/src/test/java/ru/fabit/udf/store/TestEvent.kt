@@ -6,10 +6,12 @@ sealed class TestEvent {
             return "TestEvent.Event"
         }
     }
+
     class Event2 : TestEvent() {
         override fun toString(): String {
             return "TestEvent.Event2"
         }
     }
+
     data class OrderEvent(val order: Int) : TestEvent()
 }

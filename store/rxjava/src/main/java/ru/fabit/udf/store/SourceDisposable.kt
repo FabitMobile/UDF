@@ -21,8 +21,8 @@ class SourceDisposable {
     }
 
     fun dispose() {
-        for (disposable in map){
-            if (!disposable.value.isDisposed){
+        for (disposable in map) {
+            if (!disposable.value.isDisposed) {
                 disposable.value.dispose()
             }
         }

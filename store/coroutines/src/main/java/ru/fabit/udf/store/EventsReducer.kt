@@ -4,22 +4,26 @@ abstract class EventsReducer<State, Action, Event> : Reducer<State, Action> {
 
     private val events: MutableList<Event> = mutableListOf()
 
-    fun reduceEvent(state: State, action: Action): WrapState<State, Event> {
+    fun reduceStateWithEvents(state: State, action: Action): StateWithEvents<State, Event> {
         val newState = reduceState(state, action)
-        val eventsHelp = events.toList()
+        val newEvents = events.toList()
         events.clear()
-        return WrapState(newState, eventsHelp)
+        return StateWithEvents(newState, newEvents)
     }
 
-    operator fun State.plus(event: Event): State {
+    protected operator fun State.plus(event: Event): State {
         events.add(event)
         return this
     }
 
-    operator fun State.plus(event: List<Event>): State {
+    protected operator fun State.plus(event: List<Event>): State {
         events.addAll(event)
         return this
     }
 }
 
-class WrapState<State, Event>(val state: State, val events: List<Event>)
+class StateWithEvents<State, Event>(val state: State, val events: List<Event>) {
+    operator fun component1(): State = state
+
+    operator fun component2(): List<Event> = events
+}

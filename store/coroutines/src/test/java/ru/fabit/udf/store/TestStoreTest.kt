@@ -1,10 +1,25 @@
 package ru.fabit.udf.store
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
-import ru.fabit.udf.store.counter.*
-import ru.fabit.udf.store.order.*
+import ru.fabit.udf.store.counter.CounterAction
+import ru.fabit.udf.store.counter.CounterActionSource
+import ru.fabit.udf.store.counter.CounterBindActionSource
+import ru.fabit.udf.store.counter.CounterReducer
+import ru.fabit.udf.store.counter.CounterState
+import ru.fabit.udf.store.counter.CounterStore
+import ru.fabit.udf.store.order.OrderAction
+import ru.fabit.udf.store.order.OrderActionSource
+import ru.fabit.udf.store.order.OrderBindActionSource
+import ru.fabit.udf.store.order.OrderReducer
+import ru.fabit.udf.store.order.OrderState
+import ru.fabit.udf.store.order.OrderStore
 import java.util.concurrent.CopyOnWriteArrayList
 
 class TestStoreTest {
@@ -12,49 +27,37 @@ class TestStoreTest {
     private val errorHandler =
         object : ErrorHandler {
             override fun handle(t: Throwable) {
-                println(t)
+                t.printStackTrace()
             }
         }
 
     private fun store() = TestStore(
-        TestState("init"),
-        TestReducer(),
-        errorHandler,
-        TestAction.BootstrapAction,
-        actionSources = CopyOnWriteArrayList(
-            listOf(
-                TestActionSource(),
-                TestActionSource2(),
-                TestActionSource3()
-            )
-        ),
-        bindActionSources = CopyOnWriteArrayList(
-            listOf(
-                TestBootstrapActionSource(),
-                TestBindActionSource(),
-                TestBindActionSource2(),
-                TestBindActionSource3(),
-                TestBindActionSource4()
-            )
-        ),
-        sideEffects = CopyOnWriteArrayList(
-            listOf(
-                TestSideEffect(),
-                TestSideEffect2(),
-                TestSideEffect3()
-            )
+        StoreKit.build(
+            TestState("init"),
+            TestReducer(),
+            errorHandler,
+            TestAction.BootstrapAction,
+            TestActionSource(),
+            TestActionSource2(),
+            TestActionSource3(),
+            TestBootstrapActionSource(),
+            TestBindActionSource(),
+            TestBindActionSource2(),
+            TestBindActionSource3(),
+            TestBindActionSource4(),
+            TestSideEffect(),
+            TestSideEffect2(),
+            TestSideEffect3()
         )
     ).apply { start() }
 
     private fun storeMini() = TestStore(
-        TestState("init"),
-        TestReducer(),
-        errorHandler,
-        TestAction.BootstrapAction,
-        bindActionSources = CopyOnWriteArrayList(
-            listOf(
-                TestBindActionSource4()
-            )
+        StoreKit.build(
+            TestState("init"),
+            TestReducer(),
+            errorHandler,
+            TestAction.BootstrapAction,
+            TestBindActionSource4()
         )
     ).apply { start() }
 
@@ -221,13 +224,16 @@ class TestStoreTest {
 
         val store = storeMini()
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.event.collect { event ->
+            store.eventsFlow.collect { event ->
                 events.add(event)
+                store.clearEvents()
             }
         }
         delay(100)
         store.dispatchAction(TestAction.BindAction4("1"))
         delay(100)
+        store.dispose()
+        job.cancel()
         Assert.assertEquals(
             1,
             events.flatten().size
@@ -236,8 +242,42 @@ class TestStoreTest {
             TestEvent.Event,
             events.flatten().first()
         )
+    }
+
+    /**
+     * Эвенты не теряются, если приходят в один момент времени
+     */
+    @Test
+    fun `test fast events`() = runBlocking {
+        val events = mutableListOf<List<TestEvent>>()
+
+        val store = storeMini()
+        val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            store.eventsFlow.collect { event ->
+                events.add(event)
+                store.clearEvents()
+            }
+        }
+        delay(100)
+        store.dispatchAction(TestAction.EventAction)
+        delay(1)
+        store.dispatchAction(TestAction.EventAction)
+        delay(1)
+        store.dispatchAction(TestAction.OrderEventAction(0))
+        delay(100)
         store.dispose()
         job.cancel()
+        Assert.assertEquals(
+            4,
+            events.flatten().size
+        )
+        Assert.assertEquals(
+            TestEvent.Event,
+            events.flatten().first()
+        )
+        Assert.assertTrue(
+            events.flatten().last() is TestEvent.OrderEvent
+        )
     }
 
     @Test
@@ -246,18 +286,22 @@ class TestStoreTest {
 
         val store = storeMini()
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.event.collect { event ->
+            store.eventsFlow.collect { event ->
                 events.add(event)
+                store.clearEvents()
             }
         }
         delay(100)
         job.cancel()
         val job2 = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.event.collect { event ->
+            store.eventsFlow.collect { event ->
                 events.add(event)
+                store.clearEvents()
             }
         }
         delay(100)
+        store.dispose()
+        job2.cancel()
         Assert.assertEquals(
             1,
             events.flatten().size
@@ -266,8 +310,6 @@ class TestStoreTest {
             TestEvent.Event,
             events.flatten().first()
         )
-        store.dispose()
-        job2.cancel()
     }
 
     @Test
@@ -319,13 +361,15 @@ class TestStoreTest {
     fun cleaning_event_test() = runBlocking {
         val events = mutableSetOf<TestEvent>()
         val store = TestStore(
-            TestState("init"),
-            TestReducer(),
-            errorHandler,
-            TestAction.NoAction
+            StoreKit.build(
+                TestState("init"),
+                TestReducer(),
+                errorHandler,
+                TestAction.NoAction
+            )
         ).apply { start() }
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.event.collect { event ->
+            store.eventsFlow.collect { event ->
                 events.addAll(event)
             }
         }
@@ -350,10 +394,12 @@ class TestStoreTest {
     @Test
     fun cleaning_state_test() = runBlocking {
         val store = TestStore(
-            TestState("init"),
-            TestReducer(),
-            errorHandler,
-            TestAction.NoAction
+            StoreKit.build(
+                TestState("init"),
+                TestReducer(),
+                errorHandler,
+                TestAction.NoAction
+            )
         ).apply { start() }
         var textResult = ""
         val jobState = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
@@ -384,10 +430,12 @@ class TestStoreTest {
     fun order_merging_events() = runBlocking {
         val events = mutableListOf<TestEvent>()
         val store = TestStore(
-            TestState("init"),
-            TestReducer(),
-            errorHandler,
-            TestAction.OrderEventAction(0)
+            StoreKit.build(
+                TestState("init"),
+                TestReducer(),
+                errorHandler,
+                TestAction.OrderEventAction(0)
+            )
         ).apply { start() }
         delay(100)
         store.dispatchAction(TestAction.OrderEventAction(1))
@@ -397,7 +445,7 @@ class TestStoreTest {
         store.dispatchAction(TestAction.OrderEventAction(3))
         delay(100)
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            store.event.collect { event ->
+            store.eventsFlow.collect { event ->
                 events.addAll(event)
             }
         }

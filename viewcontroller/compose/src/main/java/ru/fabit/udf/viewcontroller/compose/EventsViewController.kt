@@ -6,24 +6,27 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import ru.fabit.udf.store.EventsStore
 import kotlin.coroutines.CoroutineContext
 
 abstract class EventsViewController<State, Action, Event>(
-    store: EventsStore<State, Action, Event>
-) : ViewController<State, Action>(store) {
-    private val event: Flow<List<Event>> = store.event
+    private val eventsStore: EventsStore<State, Action, Event>
+) : ViewController<State, Action>(eventsStore) {
 
     @Composable
-    fun renderEvent(
+    fun renderEvents(
         lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
         minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
         context: CoroutineContext = Dispatchers.IO
-    ): androidx.compose.runtime.State<List<Event>> = event.collectAsStateWithLifecycle(
-        initialValue = listOf(),
-        lifecycle = lifecycleOwner.lifecycle,
-        minActiveState = minActiveState,
-        context = context
-    )
+    ): androidx.compose.runtime.State<List<Event>?> {
+        val eventsState = eventsStore.eventsFlow.collectAsStateWithLifecycle(
+            initialValue = null,
+            lifecycle = lifecycleOwner.lifecycle,
+            minActiveState = minActiveState,
+            context = context
+        )
+        if (eventsState.value != null)
+            eventsStore.clearEvents()
+        return eventsState
+    }
 }
