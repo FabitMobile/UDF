@@ -13,6 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "udf"
-include(":store:rxjava")
+rootProject.name = "UDF"
+//include(":store:rxjava") //todo uncomment
 include(":store:coroutines")
+include(":viewcontroller:compose")

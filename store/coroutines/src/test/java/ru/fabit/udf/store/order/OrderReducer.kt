@@ -8,6 +8,7 @@ class OrderReducer : Reducer<OrderState, OrderAction> {
             is OrderAction.BootstrapAction -> copy(
                 value = value + action.value
             )
+
             is OrderAction.Action -> copy(
                 value = value + action.value
             )
@@ -15,6 +16,7 @@ class OrderReducer : Reducer<OrderState, OrderAction> {
             is OrderAction.BindAction -> copy(
                 value = value + action.value
             )
+
             else -> copy()
         }
     }

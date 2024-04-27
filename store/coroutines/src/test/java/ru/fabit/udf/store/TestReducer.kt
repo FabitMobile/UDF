@@ -1,6 +1,6 @@
 package ru.fabit.udf.store
 
-class TestReducer : Reducer<TestState, TestAction> {
+class TestReducer : EventsReducer<TestState, TestAction, TestEvent>() {
     override fun TestState.reduce(action: TestAction): TestState {
         return when (action) {
             is TestAction.NoAction -> copy(
@@ -9,8 +9,7 @@ class TestReducer : Reducer<TestState, TestAction> {
 
             is TestAction.BootstrapAction -> copy(
                 value = "bootstrap action",
-                events = events + TestEvent.Event
-            )
+            ) + TestEvent.Event
 
             is TestAction.Action -> copy(
                 value = action.value
@@ -54,13 +53,11 @@ class TestReducer : Reducer<TestState, TestAction> {
 
             is TestAction.EventAction -> copy(
                 value = "event action",
-                events = events + TestEvent.Event2
-            )
+            ) + TestEvent.Event2()
 
             is TestAction.OrderEventAction -> copy(
                 value = "order event action ${action.order}",
-                events = events + TestEvent.OrderEvent(action.order)
-            )
+            ) + TestEvent.OrderEvent(action.order)
 
             else -> copy()
         }

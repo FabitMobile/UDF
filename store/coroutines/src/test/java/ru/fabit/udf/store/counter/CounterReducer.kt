@@ -8,6 +8,7 @@ class CounterReducer : Reducer<CounterState, CounterAction> {
             is CounterAction.BootstrapAction -> copy(
                 value = value + action.value
             )
+
             is CounterAction.Action -> copy(
                 value = value + action.value
             )
@@ -15,6 +16,7 @@ class CounterReducer : Reducer<CounterState, CounterAction> {
             is CounterAction.BindAction -> copy(
                 value = value + action.value
             )
+
             else -> copy()
         }
     }

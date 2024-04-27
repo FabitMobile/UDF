@@ -17,15 +17,30 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 open class BaseStore<State, Action>(
-    startState: State,
-    private val reducer: ru.fabit.udf.store.Reducer<State, Action>,
-    private val errorHandler: ru.fabit.udf.store.ErrorHandler,
-    private val bootstrapAction: Action? = null,
-    private val sideEffects: Iterable<ru.fabit.udf.store.SideEffect<State, Action>> = emptyList(),
-    private val bindActionSources: Iterable<ru.fabit.udf.store.BindActionSource<State, Action>> = emptyList(),
-    private val actionSources: Iterable<ru.fabit.udf.store.ActionSource<Action>> = emptyList(),
-    private val actionHandlers: Iterable<ru.fabit.udf.store.ActionHandler<State, Action>> = emptyList()
-) : ru.fabit.udf.store.Store<State, Action> {
+    protected val storeKit: StoreKit<State, Action>
+) : Store<State, Action> {
+
+    constructor(
+        startState: State,
+        reducer: Reducer<State, Action>,
+        errorHandler: ErrorHandler,
+        bootstrapAction: Action? = null,
+        sideEffects: Iterable<SideEffect<State, Action>> = emptyList(),
+        bindActionSources: Iterable<BindActionSource<State, Action>> = emptyList(),
+        actionSources: Iterable<ActionSource<Action>> = emptyList(),
+        actionHandlers: Iterable<ActionHandler<State, Action>> = emptyList()
+    ) : this(
+        StoreKit<State, Action>(
+            startState,
+            bootstrapAction,
+            reducer,
+            errorHandler,
+            sideEffects,
+            bindActionSources,
+            actionSources,
+            actionHandlers
+        )
+    )
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -48,7 +63,7 @@ open class BaseStore<State, Action>(
             return _state
         }
 
-    protected var _currentState: State = startState
+    protected var _currentState: State = storeKit.startState
     override val currentState: State
         get() = _currentState
 
@@ -60,7 +75,7 @@ open class BaseStore<State, Action>(
     }
 
     override fun dispatchAction(action: Action) {
-        scope.launch {
+        scope.launch(Dispatchers.Main) {
             _actions.emit(action)
         }
     }
@@ -89,7 +104,7 @@ open class BaseStore<State, Action>(
 
     protected open suspend fun handleActions() {
         actions.onSubscription {
-            bootstrapAction?.let {
+            storeKit.bootstrapAction?.let {
                 emit(it)
             }
         }.collect { action ->
@@ -102,12 +117,12 @@ open class BaseStore<State, Action>(
         }
     }
 
-    protected open fun reduceState(state: State, action: Action): State {
-        return reducer.reduceState(state, action)
+    protected open suspend fun reduceState(state: State, action: Action): State {
+        return storeKit.reducer.reduceState(state, action)
     }
 
     protected open fun dispatchSideEffect(state: State, action: Action) {
-        sideEffects.filter { sideEffect ->
+        storeKit.actors.sideEffects.filter { sideEffect ->
             sideEffect.query(state, action)
         }.forEach { sideEffect ->
             sideEffectsJobs.start(sideEffect::class.java.simpleName) {
@@ -116,7 +131,7 @@ open class BaseStore<State, Action>(
                         _actions.emit(sideEffect(state, action))
                     } catch (t: Throwable) {
                         t.handleCancellationException {
-                            errorHandler.handle(t)
+                            storeKit.errorHandler.handle(t)
                             _actions.emit(sideEffect(t))
                         }
                     }
@@ -126,13 +141,13 @@ open class BaseStore<State, Action>(
     }
 
     protected open fun dispatchActionSource() {
-        actionSources.map { actionSource ->
+        storeKit.actors.actionSources.map { actionSource ->
             actionSourcesJobs.start(actionSource::class.java.simpleName) {
                 scope.launch {
                     try {
                         actionSource(this).catch {
                             it.handleCancellationException {
-                                errorHandler.handle(it)
+                                storeKit.errorHandler.handle(it)
                                 emit(actionSource(it))
                             }
                         }.collect {
@@ -140,7 +155,7 @@ open class BaseStore<State, Action>(
                         }
                     } catch (t: Throwable) {
                         t.handleCancellationException {
-                            errorHandler.handle(t)
+                            storeKit.errorHandler.handle(t)
                             _actions.emit(actionSource(t))
                         }
                     }
@@ -150,7 +165,7 @@ open class BaseStore<State, Action>(
     }
 
     protected open fun dispatchBindActionSource(state: State, action: Action) {
-        bindActionSources.filter { bindActionSource ->
+        storeKit.actors.bindActionSources.filter { bindActionSource ->
             bindActionSource.query(state, action)
         }.map { bindActionSource ->
             bindActionSourcesJobs.start(bindActionSource::class.java.simpleName) {
@@ -158,7 +173,7 @@ open class BaseStore<State, Action>(
                     try {
                         bindActionSource(this, state, action).catch {
                             it.handleCancellationException {
-                                errorHandler.handle(it)
+                                storeKit.errorHandler.handle(it)
                                 emit(bindActionSource(it))
                             }
                         }
@@ -167,7 +182,7 @@ open class BaseStore<State, Action>(
                             }
                     } catch (t: Throwable) {
                         t.handleCancellationException {
-                            errorHandler.handle(t)
+                            storeKit.errorHandler.handle(t)
                             _actions.emit(bindActionSource(t))
                         }
                     }
@@ -177,7 +192,7 @@ open class BaseStore<State, Action>(
     }
 
     protected open fun dispatchActionHandler(state: State, action: Action) {
-        actionHandlers.filter { actionHandler ->
+        storeKit.actors.actionHandlers.filter { actionHandler ->
             actionHandler.query(state, action)
         }.forEach { actionHandler ->
             actionHandlersJobs.start(actionHandler::class.java.simpleName) {
@@ -185,14 +200,14 @@ open class BaseStore<State, Action>(
                     try {
                         actionHandler(state, action)
                     } catch (t: Throwable) {
-                        t.handleCancellationException { errorHandler.handle(t) }
+                        t.handleCancellationException { storeKit.errorHandler.handle(t) }
                     }
                 }
             }
         }
     }
 
-    private suspend fun Throwable.handleCancellationException(action: suspend () -> Unit) {
+    private suspend inline fun Throwable.handleCancellationException(crossinline action: suspend () -> Unit) {
         if (this !is CancellationException) {
             action()
         }
