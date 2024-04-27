@@ -1,8 +1,6 @@
 package ru.fabit.udf.viewcontroller.compose
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.junit4.createComposeRule
 import kotlinx.coroutines.delay
