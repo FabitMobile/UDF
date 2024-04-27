@@ -75,7 +75,7 @@ open class BaseStore<State, Action>(
     }
 
     override fun dispatchAction(action: Action) {
-        scope.launch {
+        scope.launch(Dispatchers.Main) {
             _actions.emit(action)
         }
     }

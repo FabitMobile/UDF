@@ -6,8 +6,12 @@ class TestViewController(
     store: TestStore
 ) : EventsViewController<TestState, TestAction, TestEvent>(store) {
 
-    fun event() {
-        dispatchAction(TestAction.EventAction)
+    fun event(event: TestEvent) {
+        dispatchAction(TestAction.EventAction(event))
+    }
+
+    fun listEvent(events: List<TestEvent>) {
+        dispatchAction(TestAction.ListEventAction(events))
     }
 
     fun noAction() {

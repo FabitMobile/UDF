@@ -15,5 +15,7 @@ sealed class TestAction {
 
     data class Action(val value: String) : TestAction()
 
-    object EventAction : TestAction()
+    data class EventAction(val event: TestEvent) : TestAction()
+
+    data class ListEventAction(val events: List<TestEvent>) : TestAction()
 }

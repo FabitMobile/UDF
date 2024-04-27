@@ -9,12 +9,12 @@ class TestActionSource(private val eventOnIndex: Int) : ActionSource<TestAction>
         flow {
             var i = 0
             delay(100)
-            emit(TestAction.EventAction)
+            emit(TestAction.EventAction(TestEvent.Event1()))
             while (true) {
                 i++
                 delay(100)
                 val action = if (i == eventOnIndex)
-                    TestAction.EventAction
+                    TestAction.EventAction(TestEvent.Event1())
                 else
                     TestAction.Action("TestActionSource, $i")
                 emit(action)

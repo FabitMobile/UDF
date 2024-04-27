@@ -19,6 +19,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 
 dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.10"
     testImplementation "junit:junit:4.13"
 }
 

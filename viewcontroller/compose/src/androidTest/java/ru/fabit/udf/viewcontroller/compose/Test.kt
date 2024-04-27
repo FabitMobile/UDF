@@ -1,8 +1,11 @@
 package ru.fabit.udf.viewcontroller.compose
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.junit4.createComposeRule
+import kotlinx.coroutines.delay
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +33,7 @@ class Test {
      */
     @Test
     fun test_events() {
-        var lastEvents: List<TestEvent>? = listOf()
+        var lastEvents: List<TestEvent?> = listOf()
 
         var firstEvent: TestEvent? = null
         var secondEvent: TestEvent? = null
@@ -74,25 +77,29 @@ class Test {
             log("Test thirdEvent=$thirdEvent")
 
             Assert.assertTrue(firstEvent is TestEvent.BootstrapEvent)
-            Assert.assertTrue(secondEvent is TestEvent.Event)
-            Assert.assertTrue(thirdEvent is TestEvent.Event)
+            Assert.assertTrue(secondEvent is TestEvent.Event1)
+            Assert.assertTrue(thirdEvent is TestEvent.Event1)
             Assert.assertNotEquals(secondEvent, firstEvent)
             Assert.assertEquals(secondEvent, thirdEvent)
         }
     }
 
     /**
-     * пропускаем три экшена EventAction через viewController
+     * пропускаем экшены EventAction через viewController
      * получаем их
+     * ожидаем что будет отработан алгоритм накопления эвентов до появления подписчика и все евенты придут разом
      */
     @Test
     fun test_events2() {
-        val value = mutableListOf<TestEvent>()
-
-        var firstEvent: TestEvent? = null
-        var secondEvent: TestEvent? = null
-        var thirdEvent: TestEvent? = null
-
+        val sentEvents = mutableListOf(
+            TestEvent.Event1(),
+            TestEvent.Event2(),
+            TestEvent.Event3(),
+            TestEvent.Event1(),
+            TestEvent.Event1(),
+            TestEvent.Event3()
+        )
+        val handledEvents = mutableListOf<TestEvent>()
         val store = TestStore(
             StoreKit.build(
                 TestState("init", ""),
@@ -101,50 +108,124 @@ class Test {
             )
         )
         val viewController = TestViewController(store)
-
         composeTestRule.setContent {
             val state = viewController.renderState()
             val events = viewController.renderEvents()
-
-            LaunchedEffect(Unit) {
-                viewController.event()
-                viewController.event()
-                viewController.event()
-            }
-
-            events.value?.let { value.addAll(it) }
-            log("Test events = ${events.value}")
-            log("Test state = ${state.value}")
-
-            if (firstEvent == null) {
-                firstEvent = events.value?.firstOrNull()
-                secondEvent = events.value?.getOrNull(1)
-                thirdEvent = events.value?.getOrNull(2)
-            } else {
-                if (secondEvent == null) {
-                    secondEvent = events.value?.firstOrNull()
-                    thirdEvent = events.value?.getOrNull(1)
-                } else {
-                    if (thirdEvent == null) {
-                        thirdEvent = events.value?.firstOrNull()
-                    }
+            LaunchedEffect("Unit2") {
+                sentEvents.onEach {
+                    viewController.event(it)
                 }
             }
+            events.value.let { handledEvents.addAll(it) }
+            log("Test events = ${events.value}")
+            log("Test state = ${state.value}")
         }
 
         try {
-            composeTestRule.waitUntil(5000) {
-                firstEvent != null && secondEvent != null && value.size == 3
-            }
+            composeTestRule.waitUntil(5000) { false }
         } catch (_: ComposeTimeoutException) {
-            Assert.assertTrue(false)
         } finally {
-            log("Test firstEvent=$firstEvent")
-            log("Test secondEvent=$secondEvent")
-            log("Test thirdEvent=$thirdEvent")
+            log("Test sentEvents = $sentEvents")
+            log("Test handledEvents = $handledEvents")
+            Assert.assertTrue(sentEvents == handledEvents)
+        }
+    }
 
-            Assert.assertTrue(firstEvent is TestEvent.Event)
-            Assert.assertTrue(secondEvent is TestEvent.Event)
+    /**
+     * ждем delay(3000), чтобы успели подписаться на store
+     * пропускаем экшены EventAction через viewController
+     * получаем их
+     * ожидаем что алгоритм накопления эвентов до появления подписчика не будет задействован
+     */
+    @Test
+    fun test_events3() {
+        val sentEvents = mutableListOf(
+            TestEvent.Event1(),
+            TestEvent.Event2(),
+            TestEvent.Event3(),
+            TestEvent.Event1(),
+            TestEvent.Event1(),
+            TestEvent.Event3()
+        )
+        val handledEvents = mutableListOf<TestEvent>()
+        val store = TestStore(
+            StoreKit.build(
+                TestState("init", ""),
+                TestReducer,
+                errorHandler
+            )
+        )
+        val viewController = TestViewController(store)
+        composeTestRule.setContent {
+            val state = viewController.renderState()
+            val events = viewController.renderEvents()
+            LaunchedEffect("Unit2") {
+                delay(3000)
+                sentEvents.onEach {
+                    viewController.event(it)
+                }
+            }
+            events.value.let { handledEvents.addAll(it) }
+            log("Test events = ${events.value}")
+            log("Test state = ${state.value}")
+        }
+
+        try {
+            composeTestRule.waitUntil(5000) { false }
+        } catch (_: ComposeTimeoutException) {
+        } finally {
+            log("Test sentEvents = $sentEvents")
+            log("Test handledEvents = $handledEvents")
+            Assert.assertTrue(sentEvents == handledEvents)
+        }
+    }
+
+    /**
+     * пропускаем экшены ListEventAction через viewController несколько раз countAction
+     * ожидаем что все сгенерированные эвенты будут доставлены
+     */
+    @Test
+    fun test_events4() {
+        val countAction = 3
+        val sentEvents = mutableListOf(
+            TestEvent.Event1(),
+            TestEvent.Event1(),
+            TestEvent.Event2()
+        )
+        val expectedEvents = mutableListOf<TestEvent>()
+        repeat(countAction) {
+            expectedEvents.addAll(sentEvents)
+        }
+        val handledEvents = mutableListOf<TestEvent>()
+        val store = TestStore(
+            StoreKit.build(
+                TestState("init", ""),
+                TestReducer,
+                errorHandler
+            )
+        )
+        val viewController = TestViewController(store)
+        composeTestRule.setContent {
+            val state = viewController.renderState()
+            val events = viewController.renderEvents()
+            LaunchedEffect("Unit2") {
+                delay(3000)
+                repeat(countAction) {
+                    viewController.listEvent(sentEvents)
+                }
+            }
+            events.value.let { handledEvents.addAll(it) }
+            log("Test events = ${events.value}")
+            log("Test state = ${state.value}")
+        }
+
+        try {
+            composeTestRule.waitUntil(5000) { false }
+        } catch (_: ComposeTimeoutException) {
+        } finally {
+            log("Test expectedEvents = $expectedEvents")
+            log("Test handledEvents = $handledEvents")
+            Assert.assertEquals(expectedEvents, handledEvents)
         }
     }
 

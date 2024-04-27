@@ -2,34 +2,40 @@ package ru.fabit.udf.store
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onSubscription
 import ru.fabit.udf.store.internal.log
 
 open class EventsStore<State, Action, Event>(storeKit: StoreKit<State, Action>) :
     BaseStore<State, Action>(storeKit) {
 
-    private val _eventsFlow = MutableSharedFlow<List<Event>>(replay = 1, extraBufferCapacity = 5)
+    private val _eventsFlow = MutableSharedFlow<List<Event>>(replay = 1)
 
     private var accumulatedEvents = listOf<Event>()
 
-    val eventsFlow: Flow<List<Event>> = _eventsFlow
+    private var isEventsFlowConnected = false
 
-    /**
-     * Необходимо вызвать при колучении эвентов
-     */
-    fun clearEvents() {
-        log("EventsStore: eventsToClear = $accumulatedEvents")
-        _eventsFlow.tryEmit(listOf())
-        accumulatedEvents = listOf()
-    }
+    val eventsFlow: Flow<List<Event>> = _eventsFlow
+        .onSubscription {
+            _eventsFlow.emit(accumulatedEvents)
+            isEventsFlowConnected = true
+            accumulatedEvents = listOf()
+        }
+        .onCompletion {
+            isEventsFlowConnected = false
+        }
 
     override suspend fun reduceState(state: State, action: Action): State {
         return if (storeKit.reducer is EventsReducer<State, Action, *>) {
             val (newState, newEvents) = storeKit.reducer.reduceStateWithEvents(state, action)
-            val accumulatedEvents = accumulatedEvents + newEvents as List<Event>
-
-            log("EventsStore: accumulatedEvents = $accumulatedEvents")
-            this.accumulatedEvents = accumulatedEvents
-            _eventsFlow.emit(accumulatedEvents)
+            newEvents as List<Event>
+            if (isEventsFlowConnected) {
+                _eventsFlow.emit(newEvents)
+            } else {
+                val accumulatedEvents = accumulatedEvents + newEvents
+                this.accumulatedEvents = accumulatedEvents
+            }
+            log("EventsStore: accumulatedEvents = $accumulatedEvents, newEvents = $newEvents, action = $action")
             newState
         } else
             super.reduceState(state, action)

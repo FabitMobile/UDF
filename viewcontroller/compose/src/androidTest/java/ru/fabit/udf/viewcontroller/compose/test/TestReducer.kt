@@ -18,9 +18,17 @@ object TestReducer : EventsReducer<TestState, TestAction, TestEvent>() {
                 value2 = value2 + action.value
             )
 
-            is TestAction.EventAction -> copy(
-                value = "event action",
-            ) + TestEvent.Event
+            is TestAction.EventAction -> {
+                copy(
+                    value = "event action ${action.event}",
+                ) + action.event
+            }
+
+            is TestAction.ListEventAction -> {
+                copy(
+                    value = "list event action",
+                ) + action.events
+            }
         }
     }
 }
