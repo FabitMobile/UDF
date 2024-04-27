@@ -14,6 +14,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "UDF"
-//include(":store:rxjava") //todo uncomment
+include(":store:rxjava")
 include(":store:coroutines")
 include(":viewcontroller:compose")
+include(":viewcontroller:view:rxjava")

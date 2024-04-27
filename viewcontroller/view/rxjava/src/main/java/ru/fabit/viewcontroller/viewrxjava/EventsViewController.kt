@@ -1,0 +1,71 @@
+package ru.fabit.viewcontroller.viewrxjava
+
+import androidx.lifecycle.LifecycleOwner
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.observers.DisposableObserver
+import io.reactivex.schedulers.Schedulers
+import ru.fabit.udf.store.EventsStore
+import ru.fabit.udf.store.StateWithEvents
+import java.util.concurrent.atomic.AtomicReference
+
+abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
+    private val store: EventsStore<State, Action, Event>,
+    statePayload: StatePayload<State>? = null
+) : ViewController<State, Action, EventsView<State, Event>>(store, statePayload) {
+
+    private val sharedStateWithEvents: AtomicReference<StateWithEvents<State, Event>> =
+        AtomicReference()
+
+    private var stateWithEventsObserver: DisposableObserver<StateWithEvents<State, Event>>? = null
+
+    override fun onResume(lifecycleOwner: LifecycleOwner) {
+        resumedView = lifecycleOwner as EventsView<State, Event>
+        isAttached = true
+
+        stateWithEventsObserver = object : DisposableObserver<StateWithEvents<State, Event>>() {
+            override fun onComplete() {
+            }
+
+            override fun onNext(stateWithEvents: StateWithEvents<State, Event>) {
+                val prevState = sharedStateWithEvents.get()
+                if (isAttached && (prevState != stateWithEvents)) {
+                    sharedStateWithEvents.set(stateWithEvents)
+                    if (statePayload == null) {
+                        resumedView?.renderState(
+                            stateWithEvents.state,
+                            stateWithEvents.events,
+                            null
+                        )
+                    } else {
+                        val payload = statePayload.payload(prevState.state, stateWithEvents.state)
+                        resumedView?.renderState(
+                            stateWithEvents.state,
+                            stateWithEvents.events,
+                            payload
+                        )
+                    }
+                }
+            }
+
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+            }
+        }
+
+        store.stateWithEvents
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(stateWithEventsObserver!!)
+
+        attach()
+        if (!isFirstAttach) {
+            isFirstAttach = true
+            firstViewAttach()
+        }
+    }
+
+    override fun onPause(lifecycleOwner: LifecycleOwner) {
+        super.onPause(lifecycleOwner)
+        stateWithEventsObserver?.dispose()
+    }
+}

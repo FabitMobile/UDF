@@ -11,26 +11,41 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subscribers.DisposableSubscriber
 
 abstract class BaseStore<State : Any, Action : Any>(
-    currentState: State,
-    private var reducer: Reducer<State, Action>,
-    private val bootstrapper: Action?,
-    private val errorHandler: ErrorHandler,
-    private val sideEffects: Iterable<SideEffect<State, Action>> = emptyList(),
-    private val actionSources: Iterable<ActionSource<Action>> = emptyList(),
-    private val bindActionSources: Iterable<BindActionSource<State, Action>> = emptyList(),
-    private val actionHandlers: Iterable<ActionHandler<State, Action>> = emptyList()
+    protected val storeKit: StoreKit<State, Action>
 ) : Store<State, Action> {
+
+    constructor(
+        currentState: State,
+        bootstrapper: Action? = null,
+        errorHandler: ErrorHandler,
+        reducer: Reducer<State, Action>,
+        sideEffects: Iterable<SideEffect<State, Action>> = emptyList(),
+        actionSources: Iterable<ActionSource<Action>> = emptyList(),
+        bindActionSources: Iterable<BindActionSource<State, Action>> = emptyList(),
+        actionHandlers: Iterable<ActionHandler<State, Action>> = emptyList()
+    ) : this(
+        StoreKit<State, Action>(
+            currentState,
+            bootstrapper,
+            reducer,
+            errorHandler,
+            sideEffects,
+            bindActionSources,
+            actionSources,
+            actionHandlers
+        )
+    )
 
     protected val disposable = CompositeDisposable()
     protected val sourceDisposable = SourceDisposable()
 
     protected val actionSubject = PublishSubject.create<Action>()
-    protected val stateSubject = BehaviorSubject.createDefault(currentState)
+    protected val stateSubject = BehaviorSubject.createDefault(storeKit.startState)
 
     override fun start() {
         disposable.add(handleActions())
         actionSourceDispatch()
-        bootstrapper?.let { dispatchAction(it) }
+        storeKit.bootstrapAction?.let { dispatchAction(it) }
     }
 
     override val currentState: State
@@ -47,6 +62,10 @@ abstract class BaseStore<State : Any, Action : Any>(
         sourceDisposable.dispose()
     }
 
+    protected open fun reduceState(state: State, action: Action): State {
+        return storeKit.reducer.reduceState(state, action)
+    }
+
     private fun handleActions(): Disposable {
         //Passage through the reducer should be one at a time
         val countRequestItem = 1L
@@ -60,7 +79,7 @@ abstract class BaseStore<State : Any, Action : Any>(
             }
 
             override fun onNext(action: Action) {
-                val state = reducer.reduceState(stateSubject.value!!, action)
+                val state = reduceState(currentState, action)
                 stateSubject.onNext(state)
                 sideEffectDispatch(state, action)
                 actionHandlerDispatch(state, action)
@@ -70,7 +89,7 @@ abstract class BaseStore<State : Any, Action : Any>(
 
             override fun onError(t: Throwable?) {
                 t?.let {
-                    errorHandler.handleError(t)
+                    storeKit.errorHandler.handle(t)
                 }
             }
         }
@@ -82,7 +101,7 @@ abstract class BaseStore<State : Any, Action : Any>(
     }
 
     private fun sideEffectDispatch(state: State, action: Action) {
-        sideEffects.filter { sideEffect ->
+        storeKit.actors.sideEffects.filter { sideEffect ->
             sideEffect.query(state, action)
         }.forEach { sideEffect ->
             val effect = try {
@@ -93,21 +112,21 @@ abstract class BaseStore<State : Any, Action : Any>(
             sourceDisposable.add(
                 sideEffect.key,
                 effect
-                    .doOnError { errorHandler.handleError(it) }
+                    .doOnError { storeKit.errorHandler.handle(it) }
                     .onErrorResumeNext { throwable ->
                         Single.just(sideEffect(throwable))
                     }
                     .subscribe({ action ->
                         actionSubject.onNext(action)
                     }, {
-                        errorHandler.handleError(it)
+                        storeKit.errorHandler.handle(it)
                     })
             )
         }
     }
 
     private fun actionHandlerDispatch(state: State, action: Action) {
-        actionHandlers.filter { actionHandler ->
+        storeKit.actors.actionHandlers.filter { actionHandler ->
             actionHandler.query(state, action)
         }.forEach { actionHandler ->
             val handler = try {
@@ -118,17 +137,17 @@ abstract class BaseStore<State : Any, Action : Any>(
             sourceDisposable.add(
                 actionHandler.key,
                 handler
-                    .doOnError { errorHandler.handleError(it) }
+                    .doOnError { storeKit.errorHandler.handle(it) }
                     .subscribeOn(actionHandler.handlerScheduler)
                     .subscribe({ }, {
-                        errorHandler.handleError(it)
+                        storeKit.errorHandler.handle(it)
                     })
             )
         }
     }
 
     private fun actionSourceDispatch() {
-        actionSources.forEach { actionSource ->
+        storeKit.actors.actionSources.forEach { actionSource ->
             val source = try {
                 actionSource()
             } catch (t: Throwable) {
@@ -137,7 +156,7 @@ abstract class BaseStore<State : Any, Action : Any>(
             sourceDisposable.add(
                 actionSource.key,
                 source
-                    .doOnError { errorHandler.handleError(it) }
+                    .doOnError { storeKit.errorHandler.handle(it) }
                     .onErrorResumeNext { throwable: Throwable ->
                         Observable.create { emitter ->
                             emitter.onNext(actionSource(throwable))
@@ -146,14 +165,14 @@ abstract class BaseStore<State : Any, Action : Any>(
                     .subscribe({ action ->
                         actionSubject.onNext(action)
                     }, {
-                        errorHandler.handleError(it)
+                        storeKit.errorHandler.handle(it)
                     })
             )
         }
     }
 
     private fun bindActionSourceDispatch(state: State, action: Action) {
-        bindActionSources.filter { actionSource ->
+        storeKit.actors.bindActionSources.filter { actionSource ->
             actionSource.query(state, action)
         }.forEach { actionSource ->
             val source = try {
@@ -164,7 +183,7 @@ abstract class BaseStore<State : Any, Action : Any>(
             sourceDisposable.add(
                 actionSource.key,
                 source
-                    .doOnError { errorHandler.handleError(it) }
+                    .doOnError { storeKit.errorHandler.handle(it) }
                     .onErrorResumeNext { throwable: Throwable ->
                         Observable.create { emitter ->
                             emitter.onNext(actionSource(throwable))
@@ -173,7 +192,7 @@ abstract class BaseStore<State : Any, Action : Any>(
                     .subscribe({ action ->
                         actionSubject.onNext(action)
                     }, {
-                        errorHandler.handleError(it)
+                        storeKit.errorHandler.handle(it)
                     })
             )
         }
