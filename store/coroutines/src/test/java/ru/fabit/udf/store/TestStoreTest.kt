@@ -226,7 +226,6 @@ class TestStoreTest {
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.eventsFlow.collect { event ->
                 events.add(event)
-                store.clearEvents()
             }
         }
         delay(100)
@@ -255,7 +254,6 @@ class TestStoreTest {
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.eventsFlow.collect { event ->
                 events.add(event)
-                store.clearEvents()
             }
         }
         delay(100)
@@ -288,7 +286,6 @@ class TestStoreTest {
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.eventsFlow.collect { event ->
                 events.add(event)
-                store.clearEvents()
             }
         }
         delay(100)
@@ -296,7 +293,6 @@ class TestStoreTest {
         val job2 = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.eventsFlow.collect { event ->
                 events.add(event)
-                store.clearEvents()
             }
         }
         delay(100)
