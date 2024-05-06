@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "ru.fabit.viewcontroller.viewrxjava"
+    namespace = "ru.fabit.udf.viewcontroller.compose"
     compileSdk = 33
 
     defaultConfig {
@@ -31,21 +31,30 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
+    buildFeatures {
+        viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.3"
+    }
 }
 
 dependencies {
 
-    implementation(project(":store:rxjava"))
+    implementation(project(":store-coroutines"))
     implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-    implementation(libs.rx.java)
-    implementation(libs.rx.android)
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.activity.compose)
+    implementation(libs.lifecycle.compose)
+    implementation(libs.ui)
+    implementation(libs.ui.graphics)
+    implementation(platform(libs.compose.bom))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.kaspresso)
-    debugImplementation(libs.material)
-    debugImplementation(libs.fragment.test)
+    androidTestImplementation(libs.compose.ui.test.junit)
+    debugImplementation(libs.compose.ui.test)
 }
 
-apply(from = "../../../android_publish.gradle")
+apply(from = "../android_publish.gradle")

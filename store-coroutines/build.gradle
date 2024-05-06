@@ -18,8 +18,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 dependencies {
-    implementation(libs.rx.java)
+    implementation(libs.coroutines)
     testImplementation(libs.junit)
 }
 
-apply from: "../../kotlin_publish.gradle"
+apply from: "../kotlin_publish.gradle"
