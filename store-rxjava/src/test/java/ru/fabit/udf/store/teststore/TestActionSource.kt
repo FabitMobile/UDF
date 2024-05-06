@@ -67,7 +67,7 @@ class TestBindActionSource3 : BindActionSource<TestState, TestAction>(
 class TestBindActionSource4 : BindActionSource<TestState, TestAction>(
     query = actionIs<TestAction.Value>(),
     source = Create { state, action ->
-        onNext(TestAction.Value(0))
+        onNext(TestAction.TestBindActionSource4Action(0))
         onComplete()
     },
     error = {

@@ -18,7 +18,6 @@ class Test {
         val store = TestStore(
             StoreKit.build(
                 TestState(-1),
-                TestAction.Init,
                 TestReducer,
                 errorHandler,
                 TestActionSource3(),
@@ -26,7 +25,11 @@ class Test {
             )
         )
         store.start()
-        val test = store.state.test()
+        val test = store.state
+            .doOnNext {
+                println("____, test values ${it}")
+            }
+            .test()
         store.dispatchAction(TestAction.Value(100))
         test.awaitCount(3)
         test.assertNoErrors()

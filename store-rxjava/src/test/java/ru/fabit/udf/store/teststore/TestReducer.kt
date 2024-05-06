@@ -8,6 +8,9 @@ object TestReducer : EventsReducer<TestState, TestAction, TestEvent>() {
             is TestAction.Value -> copy(
                 value = action.value
             )
+            is TestAction.TestBindActionSource4Action -> copy(
+                value = action.value
+            )
 
             is TestAction.Event -> copy(
                 value = action.value
