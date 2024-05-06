@@ -6,10 +6,16 @@ core-ktx = "1.9.0"
 coroutines = "1.6.0"
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
-espresso-core = "3.5.1"
+espresso-core = "3.3.0"
 lifecycle = "2.6.2"
 activity-compose = "1.7.2"
 compose-bom = "2023.03.00"
+appcompat = "1.6.1"
+rx-java = "2.2.20"
+rx-android = "2.1.1"
+kaspresso = "1.5.3"
+fragment-test = "1.6.1"
+material = "1.8.0"
 
 [libraries]
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -20,12 +26,17 @@ ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 compose-ui-test = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 compose-ui-test-junit = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-material3 = { group = "androidx.compose.material3", name = "material3" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 lifecycle-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+rx-java = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rx-java" }
+rx-android = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rx-android" }
+kaspresso = { group = "com.kaspersky.android-components", name = "kaspresso", version.ref = "kaspresso" }
+fragment-test = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragment-test" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
