@@ -1,4 +1,5 @@
 # UDF - Unidirectional Data Flow
+Check [wiki](https://github.com/FabitMobile/UDF/wiki/Core) for more information 
 ## Download
 Library is distributed through JitPack
 
