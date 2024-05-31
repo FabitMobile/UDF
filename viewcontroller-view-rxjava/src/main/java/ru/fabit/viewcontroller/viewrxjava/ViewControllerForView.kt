@@ -4,10 +4,10 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import ru.fabit.udf.store.BaseStore
 
-abstract class BaseLifecycleAwareViewController<State : Any, Action : Any>(
+abstract class ViewControllerForView<State : Any, Action : Any>(
     store: BaseStore<State, Action>,
     statePayload: StatePayload<State>? = null
-) : ViewController<State, Action, StateView<State>>(store, statePayload),
+) : ViewController<State, Action>(store, statePayload),
     LifecycleObserver {
 
     protected open fun detach() {}

@@ -12,7 +12,7 @@ import ru.fabit.udf.store.Store
 import ru.fabit.viewcontroller.viewrxjava.internal.log
 import java.util.concurrent.atomic.AtomicReference
 
-abstract class ViewController<State : Any, Action : Any, View : StateView<State>>(
+abstract class ViewController<State : Any, Action : Any>(
     private val store: Store<State, Action>,
     protected val statePayload: StatePayload<State>? = null
 ) : LifecycleEventObserver {
@@ -26,7 +26,7 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
     protected open fun firstViewAttach() {}
 
     private var createdView: LifecycleOwner? = null
-    protected var resumedView: View? = null
+    protected var resumedView: StateView<State>? = null
     protected var isAttached = false
     protected var isFirstAttach = false
 
@@ -85,7 +85,7 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
     }
 
     protected open fun onResume(lifecycleOwner: LifecycleOwner) {
-        resumedView = lifecycleOwner as View
+        resumedView = lifecycleOwner as StateView<State>
         isAttached = true
         stateObserver = object : DisposableObserver<State>() {
 
