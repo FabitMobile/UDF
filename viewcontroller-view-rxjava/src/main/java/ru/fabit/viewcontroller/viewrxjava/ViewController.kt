@@ -42,8 +42,10 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
         log("onStateChanged source=$source event=$event")
         when (event) {
             Lifecycle.Event.ON_CREATE -> onCreate(source)
+            Lifecycle.Event.ON_START -> onStart(source)
             Lifecycle.Event.ON_RESUME -> onResume(source)
             Lifecycle.Event.ON_PAUSE -> onPause(source)
+            Lifecycle.Event.ON_STOP -> onStop(source)
             Lifecycle.Event.ON_DESTROY -> onDestroy(source)
 
             else -> {}
@@ -54,6 +56,8 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
         createdView = lifecycleOwner
         sharedState.set(null)
     }
+
+    protected open fun onStart(lifecycleOwner: LifecycleOwner) {}
 
     protected open fun onDestroy(lifecycleOwner: LifecycleOwner) {
         if (lifecycleOwner is Fragment) {
@@ -123,7 +127,9 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
         stateObserver?.dispose()
     }
 
-    private fun destroy(lifecycleOwner: LifecycleOwner) {
+    protected open fun onStop(lifecycleOwner: LifecycleOwner) {}
+
+    protected fun destroy(lifecycleOwner: LifecycleOwner) {
         if (lifecycleOwner == this.createdView) {
             store.dispose()
         }

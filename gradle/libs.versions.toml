@@ -16,9 +16,15 @@ rx-android = "2.1.1"
 kaspresso = "1.5.3"
 fragment-test = "1.6.1"
 material = "1.8.0"
+hilt = "2.42"
+kotlin-stdlib = "1.6.21"
+activity-ktx = "1.5.0"
+fragment-ktx = "1.5.0"
+lifecycle-viewmodel-ktx = "2.5.0"
 
 [libraries]
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin-stdlib" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ui = { group = "androidx.compose.ui", name = "ui" }
@@ -32,11 +38,15 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
 lifecycle-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity-ktx" }
+fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment-ktx" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle-viewmodel-ktx" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 rx-java = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rx-java" }
 rx-android = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rx-android" }
 kaspresso = { group = "com.kaspersky.android-components", name = "kaspresso", version.ref = "kaspresso" }
 fragment-test = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragment-test" }
+hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
