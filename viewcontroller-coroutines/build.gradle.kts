@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "ru.fabit.viewcontroller.viewrxjava"
+    namespace = "ru.fabit.viewcontroller.coroutines"
     compileSdk = 33
 
     defaultConfig {
@@ -34,12 +34,16 @@ android {
 }
 
 dependencies {
+    implementation(project(":store-coroutines"))
 
-    api(project(":store-rxjava"))
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
-    implementation(libs.rx.java)
-    implementation(libs.rx.android)
+    implementation(libs.coroutines)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.activity.ktx)
+    implementation(libs.fragment.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.hilt)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -12,7 +12,7 @@ import ru.fabit.udf.store.Store
 import ru.fabit.viewcontroller.viewrxjava.internal.log
 import java.util.concurrent.atomic.AtomicReference
 
-abstract class ViewController<State : Any, Action : Any, View : StateView<State>>(
+abstract class ViewController<State : Any, Action : Any>(
     private val store: Store<State, Action>,
     protected val statePayload: StatePayload<State>? = null
 ) : LifecycleEventObserver {
@@ -26,7 +26,7 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
     protected open fun firstViewAttach() {}
 
     private var createdView: LifecycleOwner? = null
-    protected var resumedView: View? = null
+    protected var resumedView: StateView<State>? = null
     protected var isAttached = false
     protected var isFirstAttach = false
 
@@ -42,8 +42,10 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
         log("onStateChanged source=$source event=$event")
         when (event) {
             Lifecycle.Event.ON_CREATE -> onCreate(source)
+            Lifecycle.Event.ON_START -> onStart(source)
             Lifecycle.Event.ON_RESUME -> onResume(source)
             Lifecycle.Event.ON_PAUSE -> onPause(source)
+            Lifecycle.Event.ON_STOP -> onStop(source)
             Lifecycle.Event.ON_DESTROY -> onDestroy(source)
 
             else -> {}
@@ -54,6 +56,8 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
         createdView = lifecycleOwner
         sharedState.set(null)
     }
+
+    protected open fun onStart(lifecycleOwner: LifecycleOwner) {}
 
     protected open fun onDestroy(lifecycleOwner: LifecycleOwner) {
         if (lifecycleOwner is Fragment) {
@@ -81,7 +85,7 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
     }
 
     protected open fun onResume(lifecycleOwner: LifecycleOwner) {
-        resumedView = lifecycleOwner as View
+        resumedView = lifecycleOwner as StateView<State>
         isAttached = true
         stateObserver = object : DisposableObserver<State>() {
 
@@ -123,7 +127,9 @@ abstract class ViewController<State : Any, Action : Any, View : StateView<State>
         stateObserver?.dispose()
     }
 
-    private fun destroy(lifecycleOwner: LifecycleOwner) {
+    protected open fun onStop(lifecycleOwner: LifecycleOwner) {}
+
+    protected fun destroy(lifecycleOwner: LifecycleOwner) {
         if (lifecycleOwner == this.createdView) {
             store.dispose()
         }

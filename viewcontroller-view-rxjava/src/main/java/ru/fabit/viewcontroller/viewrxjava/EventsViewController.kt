@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference
 abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
     private val store: EventsStore<State, Action, Event>,
     statePayload: StatePayload<State>? = null
-) : ViewController<State, Action, EventsView<State, Event>>(store, statePayload) {
+) : ViewController<State, Action>(store, statePayload) {
 
     private val sharedStateWithEvents: AtomicReference<StateWithEvents<State, Event>> =
         AtomicReference()
@@ -19,7 +19,8 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
     private var stateWithEventsObserver: DisposableObserver<StateWithEvents<State, Event>>? = null
 
     override fun onResume(lifecycleOwner: LifecycleOwner) {
-        resumedView = lifecycleOwner as EventsView<State, Event>
+        val resumedView = lifecycleOwner as? EventsView<State, Event>
+        this.resumedView = resumedView
         isAttached = true
 
         stateWithEventsObserver = object : DisposableObserver<StateWithEvents<State, Event>>() {
