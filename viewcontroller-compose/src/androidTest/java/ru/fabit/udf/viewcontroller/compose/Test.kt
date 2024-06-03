@@ -7,8 +7,8 @@ import kotlinx.coroutines.delay
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
-import ru.fabit.udf.store.ErrorHandler
-import ru.fabit.udf.store.StoreKit
+import ru.fabit.udf.store.coroutines.ErrorHandler
+import ru.fabit.udf.store.coroutines.StoreKit
 import ru.fabit.udf.viewcontroller.compose.internal.log
 import ru.fabit.udf.viewcontroller.compose.test.TestAction
 import ru.fabit.udf.viewcontroller.compose.test.TestActionSource

@@ -7,7 +7,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
-import ru.fabit.udf.store.Store
+import ru.fabit.udf.store.coroutines.Store
 import kotlin.coroutines.CoroutineContext
 
 abstract class ViewController<State, Action>(
