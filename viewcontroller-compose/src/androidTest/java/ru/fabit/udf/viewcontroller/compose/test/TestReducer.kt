@@ -1,6 +1,6 @@
 package ru.fabit.udf.viewcontroller.compose.test
 
-import ru.fabit.udf.store.EventsReducer
+import ru.fabit.udf.store.coroutines.EventsReducer
 
 object TestReducer : EventsReducer<TestState, TestAction, TestEvent>() {
     override fun TestState.reduce(action: TestAction): TestState {

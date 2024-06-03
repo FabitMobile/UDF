@@ -1,6 +1,6 @@
 package ru.fabit.udf.store.counter
 
-import ru.fabit.udf.store.Reducer
+import ru.fabit.udf.store.coroutines.Reducer
 
 class CounterReducer : Reducer<CounterState, CounterAction> {
     override fun CounterState.reduce(action: CounterAction): CounterState {

@@ -1,10 +1,10 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.store.coroutines
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onSubscription
-import ru.fabit.udf.store.internal.log
+import ru.fabit.udf.store.coroutines.internal.log
 
 open class EventsStore<State, Action, Event>(storeKit: StoreKit<State, Action>) :
     BaseStore<State, Action>(storeKit) {

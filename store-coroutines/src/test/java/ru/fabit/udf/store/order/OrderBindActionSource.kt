@@ -1,7 +1,7 @@
 package ru.fabit.udf.store.order
 
 import kotlinx.coroutines.flow.flowOf
-import ru.fabit.udf.store.BindActionSource
+import ru.fabit.udf.store.coroutines.BindActionSource
 
 class OrderBindActionSource : BindActionSource<OrderState, OrderAction>(
     query = { _, action -> action is OrderAction.Action },

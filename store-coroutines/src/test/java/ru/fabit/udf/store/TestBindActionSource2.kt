@@ -1,6 +1,7 @@
 package ru.fabit.udf.store
 
 import kotlinx.coroutines.flow.flowOf
+import ru.fabit.udf.store.coroutines.BindActionSource
 
 class TestBindActionSource2 : BindActionSource<TestState, TestAction>(
     query = { _, action -> action is TestAction.Action2 },

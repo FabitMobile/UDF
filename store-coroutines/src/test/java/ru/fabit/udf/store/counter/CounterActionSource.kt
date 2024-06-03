@@ -1,11 +1,12 @@
 package ru.fabit.udf.store.counter
 
 import kotlinx.coroutines.flow.flow
+import ru.fabit.udf.store.coroutines.ActionSource
 
 class CounterActionSource(
     private val repeat: Int,
     private val delay: Long
-) : ru.fabit.udf.store.ActionSource<CounterAction>(
+) : ActionSource<CounterAction>(
     source = {
         flow {
             repeat(repeat) {

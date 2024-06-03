@@ -1,4 +1,4 @@
-package ru.fabit.udf.store.internal
+package ru.fabit.udf.store.coroutines.internal
 
 internal fun log(message: Any?) {
     if (LOG_ENABLED)

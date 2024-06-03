@@ -1,8 +1,9 @@
 package ru.fabit.udf.store
 
 import kotlinx.coroutines.flow.flowOf
+import ru.fabit.udf.store.coroutines.ActionSource
 
-class TestActionSource2 : ru.fabit.udf.store.ActionSource<TestAction>(
+class TestActionSource2 : ActionSource<TestAction>(
     source = {
         flowOf(TestAction.Action2("TestActionSource2"))
     },

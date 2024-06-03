@@ -1,6 +1,6 @@
 package ru.fabit.udf.store.order
 
-import ru.fabit.udf.store.Reducer
+import ru.fabit.udf.store.coroutines.Reducer
 
 class OrderReducer : Reducer<OrderState, OrderAction> {
     override fun OrderState.reduce(action: OrderAction): OrderState {

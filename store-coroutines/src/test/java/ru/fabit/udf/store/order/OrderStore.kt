@@ -1,8 +1,11 @@
 package ru.fabit.udf.store.order
 
-import ru.fabit.udf.store.BindActionSource
-import ru.fabit.udf.store.ErrorHandler
-import ru.fabit.udf.store.SideEffect
+import ru.fabit.udf.store.coroutines.BindActionSource
+import ru.fabit.udf.store.coroutines.ErrorHandler
+import ru.fabit.udf.store.coroutines.SideEffect
+import ru.fabit.udf.store.coroutines.ActionHandler
+import ru.fabit.udf.store.coroutines.ActionSource
+import ru.fabit.udf.store.coroutines.BaseStore
 import java.util.concurrent.CopyOnWriteArrayList
 
 class OrderStore(
@@ -10,11 +13,11 @@ class OrderStore(
     reducer: OrderReducer,
     errorHandler: ErrorHandler,
     bootStrapAction: OrderAction,
-    actionHandlers: Iterable<ru.fabit.udf.store.ActionHandler<OrderState, OrderAction>> = CopyOnWriteArrayList(),
-    actionSources: Iterable<ru.fabit.udf.store.ActionSource<OrderAction>> = CopyOnWriteArrayList(),
+    actionHandlers: Iterable<ActionHandler<OrderState, OrderAction>> = CopyOnWriteArrayList(),
+    actionSources: Iterable<ActionSource<OrderAction>> = CopyOnWriteArrayList(),
     bindActionSources: Iterable<BindActionSource<OrderState, OrderAction>> = CopyOnWriteArrayList(),
     sideEffects: Iterable<SideEffect<OrderState, OrderAction>> = CopyOnWriteArrayList()
-) : ru.fabit.udf.store.BaseStore<OrderState, OrderAction>(
+) : BaseStore<OrderState, OrderAction>(
     currentState,
     reducer,
     errorHandler,

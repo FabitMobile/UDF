@@ -8,6 +8,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
+import ru.fabit.udf.store.coroutines.ErrorHandler
+import ru.fabit.udf.store.coroutines.StoreKit
 import ru.fabit.udf.store.counter.CounterAction
 import ru.fabit.udf.store.counter.CounterActionSource
 import ru.fabit.udf.store.counter.CounterBindActionSource

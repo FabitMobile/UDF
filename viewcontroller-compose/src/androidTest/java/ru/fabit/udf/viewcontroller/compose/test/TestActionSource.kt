@@ -2,7 +2,7 @@ package ru.fabit.udf.viewcontroller.compose.test
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
-import ru.fabit.udf.store.ActionSource
+import ru.fabit.udf.store.coroutines.ActionSource
 
 class TestActionSource(private val eventOnIndex: Int) : ActionSource<TestAction>(
     source = {

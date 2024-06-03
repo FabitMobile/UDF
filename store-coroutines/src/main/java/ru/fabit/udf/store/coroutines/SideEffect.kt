@@ -1,4 +1,4 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.store.coroutines
 
 open class SideEffect<State, Action>(
     val query: (State, Action) -> Boolean,

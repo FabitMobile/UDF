@@ -1,4 +1,4 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.store.coroutines
 
 fun interface Reducer<State, Action> {
     fun reduceState(state: State, action: Action): State {

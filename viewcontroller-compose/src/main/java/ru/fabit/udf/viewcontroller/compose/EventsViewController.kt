@@ -12,7 +12,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ru.fabit.udf.store.EventsStore
+import ru.fabit.udf.store.coroutines.EventsStore
 import ru.fabit.udf.viewcontroller.compose.internal.log
 import kotlin.coroutines.CoroutineContext
 

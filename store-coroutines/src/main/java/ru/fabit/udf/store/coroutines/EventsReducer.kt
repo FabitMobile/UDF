@@ -1,4 +1,4 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.store.coroutines
 
 abstract class EventsReducer<State, Action, Event> : Reducer<State, Action> {
 

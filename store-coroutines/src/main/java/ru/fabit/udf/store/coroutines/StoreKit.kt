@@ -1,4 +1,4 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.store.coroutines
 
 data class StoreKit<State, Action>(
     val startState: State,
