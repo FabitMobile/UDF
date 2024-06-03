@@ -1,13 +1,15 @@
-package ru.fabit.viewcontroller.viewrxjava
+package ru.fabit.viewcontroller.viewrxjava.payloadtest
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import ru.fabit.viewcontroller.viewrxjava.EventsView
 import ru.fabit.viewcontroller.viewrxjava.internal.log
+import ru.fabit.viewcontroller.viewrxjava.registerViewController
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestEvent
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestState
 
-class TestFragment(
-    private val viewController: TestViewController,
+class PayloadFragment(
+    private val viewController: PayloadViewController,
     private val eventsView: EventsView<TestState, TestEvent>
 ) : Fragment(), EventsView<TestState, TestEvent> {
 

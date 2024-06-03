@@ -1,20 +1,17 @@
-package ru.fabit.viewcontroller.viewrxjava
+package ru.fabit.viewcontroller.viewrxjava.payloadtest
 
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import ru.fabit.udf.store.ErrorHandler
 import ru.fabit.udf.store.StoreKit
+import ru.fabit.viewcontroller.viewrxjava.EventsView
+import ru.fabit.viewcontroller.viewrxjava.awaitDebug
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestAction
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource3
@@ -24,9 +21,9 @@ import ru.fabit.viewcontroller.viewrxjava.teststore.TestState
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestStore
 
 @RunWith(AndroidJUnit4::class)
-class EventsTestCase : TestCase() {
+class PayloadTestCase : TestCase() {
 
-    private lateinit var scenario: FragmentScenario<TestFragment>
+    private lateinit var scenario: FragmentScenario<PayloadFragment>
 
     private val errorHandler = ErrorHandler { t -> t.printStackTrace() }
 
@@ -64,12 +61,29 @@ class EventsTestCase : TestCase() {
         TestState(9)
     )
 
+    /**
+     * получили payload
+     */
+    private val resultPayload = listOf(
+        Change.TestChange
+    )
+
     private val events = mutableListOf<TestEvent>()
     private val states = mutableListOf<TestState>()
+    private val payload = mutableListOf<Change>()
 
     private var eventsView = EventsView<TestState, TestEvent> { s, e, p ->
         events.addAll(e)
         states.add(s)
+
+        p as List<*>?
+        p?.forEach { change ->
+            when (change) {
+                is Change.TestChange -> {
+                    payload.add(change)
+                }
+            }
+        }
     }
 
     @Test
@@ -84,11 +98,12 @@ class EventsTestCase : TestCase() {
                 TestActionSource3()
             )
         )
-        val viewController = TestViewController(store)
+        val testStatePayload = TestStatePayload()
+        val viewController = PayloadViewController(store, testStatePayload)
         viewController.event()
         viewController.event()
         scenario = launchFragmentInContainer {
-            TestFragment(viewController, eventsView)
+            PayloadFragment(viewController, eventsView)
         }
     }.after {}.run {
         step("Launch TestFragment") {
@@ -99,14 +114,7 @@ class EventsTestCase : TestCase() {
             awaitDebug(4000)
             assertEquals(resultEvents, events)
             assertEquals(resultStates, states)
+            assertEquals(resultPayload, payload)
         }
-    }
-}
-
-fun awaitDebug(timeMillis: Long = 10_000) {
-    runBlocking {
-        awaitAll(CoroutineScope(Dispatchers.IO).async {
-            Thread.sleep(timeMillis)
-        })
     }
 }
