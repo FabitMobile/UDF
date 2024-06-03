@@ -1,8 +1,7 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.store.coroutines
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
-import ru.fabit.udf.store.coroutines.BindActionSource
 
 class TestBindActionSource4 : BindActionSource<TestState, TestAction>(
     query = { _, action -> action is TestAction.BindAction4 },

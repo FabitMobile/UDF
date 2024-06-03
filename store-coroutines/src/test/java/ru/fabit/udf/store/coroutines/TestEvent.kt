@@ -1,4 +1,4 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.store.coroutines
 
 sealed class TestEvent {
     object Event : TestEvent() {

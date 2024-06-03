@@ -1,4 +1,4 @@
-package ru.fabit.udf.store
+package ru.fabit.udf.store.coroutines
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -8,20 +8,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
-import ru.fabit.udf.store.coroutines.ErrorHandler
-import ru.fabit.udf.store.coroutines.StoreKit
-import ru.fabit.udf.store.counter.CounterAction
-import ru.fabit.udf.store.counter.CounterActionSource
-import ru.fabit.udf.store.counter.CounterBindActionSource
-import ru.fabit.udf.store.counter.CounterReducer
-import ru.fabit.udf.store.counter.CounterState
-import ru.fabit.udf.store.counter.CounterStore
-import ru.fabit.udf.store.order.OrderAction
-import ru.fabit.udf.store.order.OrderActionSource
-import ru.fabit.udf.store.order.OrderBindActionSource
-import ru.fabit.udf.store.order.OrderReducer
-import ru.fabit.udf.store.order.OrderState
-import ru.fabit.udf.store.order.OrderStore
+import ru.fabit.udf.store.coroutines.counter.CounterAction
+import ru.fabit.udf.store.coroutines.counter.CounterActionSource
+import ru.fabit.udf.store.coroutines.counter.CounterBindActionSource
+import ru.fabit.udf.store.coroutines.counter.CounterReducer
+import ru.fabit.udf.store.coroutines.counter.CounterState
+import ru.fabit.udf.store.coroutines.counter.CounterStore
+import ru.fabit.udf.store.coroutines.order.OrderAction
+import ru.fabit.udf.store.coroutines.order.OrderActionSource
+import ru.fabit.udf.store.coroutines.order.OrderBindActionSource
+import ru.fabit.udf.store.coroutines.order.OrderReducer
+import ru.fabit.udf.store.coroutines.order.OrderState
+import ru.fabit.udf.store.coroutines.order.OrderStore
 import java.util.concurrent.CopyOnWriteArrayList
 
 class TestStoreTest {

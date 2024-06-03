@@ -1,4 +1,4 @@
-package ru.fabit.udf.store.order
+package ru.fabit.udf.store.coroutines.order
 
 import ru.fabit.udf.store.coroutines.BindActionSource
 import ru.fabit.udf.store.coroutines.ErrorHandler

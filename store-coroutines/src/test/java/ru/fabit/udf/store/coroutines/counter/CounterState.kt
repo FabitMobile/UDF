@@ -1,4 +1,4 @@
-package ru.fabit.udf.store.counter
+package ru.fabit.udf.store.coroutines.counter
 
 data class CounterState(
     val value: Int

@@ -1,6 +1,4 @@
-package ru.fabit.udf.store
-
-import ru.fabit.udf.store.coroutines.SideEffect
+package ru.fabit.udf.store.coroutines
 
 class TestSideEffect : SideEffect<TestState, TestAction>(
     query = { _, action -> action is TestAction.BindAction },

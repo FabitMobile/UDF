@@ -1,4 +1,4 @@
-package ru.fabit.udf.store.counter
+package ru.fabit.udf.store.coroutines.counter
 
 import kotlinx.coroutines.flow.flow
 import ru.fabit.udf.store.coroutines.ActionSource

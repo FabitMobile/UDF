@@ -1,6 +1,4 @@
-package ru.fabit.udf.store
-
-import ru.fabit.udf.store.coroutines.EventsReducer
+package ru.fabit.udf.store.coroutines
 
 class TestReducer : EventsReducer<TestState, TestAction, TestEvent>() {
     override fun TestState.reduce(action: TestAction): TestState {
