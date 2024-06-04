@@ -19,7 +19,8 @@ class TestActionSource : ActionSource<TestAction>(
 
 class TestActionSource2 : ActionSource<TestAction>(
     source = Create {
-        onNext(TestAction.Value(0))
+        onNext(TestAction.Event)
+        onNext(TestAction.Event)
         onComplete()
     },
     error = {
