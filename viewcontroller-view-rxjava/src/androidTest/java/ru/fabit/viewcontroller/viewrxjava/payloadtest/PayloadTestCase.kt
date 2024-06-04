@@ -14,6 +14,7 @@ import ru.fabit.viewcontroller.viewrxjava.EventsView
 import ru.fabit.viewcontroller.viewrxjava.awaitDebug
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestAction
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource
+import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource2
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource3
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestEvent
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestReducer
@@ -95,13 +96,12 @@ class PayloadTestCase : TestCase() {
                 TestReducer,
                 errorHandler,
                 TestActionSource(),
+                TestActionSource2(),
                 TestActionSource3()
             )
         )
         val testStatePayload = TestStatePayload()
         val viewController = PayloadViewController(store, testStatePayload)
-        viewController.event()
-        viewController.event()
         scenario = launchFragmentInContainer {
             PayloadFragment(viewController, eventsView)
         }

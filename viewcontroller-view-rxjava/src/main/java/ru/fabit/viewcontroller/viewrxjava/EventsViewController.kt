@@ -13,7 +13,7 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
     statePayload: StatePayload<State>? = null
 ) : ViewController<State, Action>(store, statePayload) {
 
-    private val sharedState: AtomicReference<State> = AtomicReference()
+    private val sharedState: AtomicReference<StateWithEvents<State, Event>?> = AtomicReference()
 
     private var stateWithEventsObserver: DisposableObserver<StateWithEvents<State, Event>>? = null
 
@@ -28,8 +28,8 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
 
             override fun onNext(stateWithEvents: StateWithEvents<State, Event>) {
                 val prevState = sharedState.get()
-                if (isAttached && (prevState != stateWithEvents.state)) {
-                    sharedState.set(stateWithEvents.state)
+                if (isAttached && (prevState != stateWithEvents)) {
+                    sharedState.set(stateWithEvents)
                     if (statePayload == null) {
                         resumedView?.renderState(
                             stateWithEvents.state,
@@ -37,7 +37,7 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
                             null
                         )
                     } else {
-                        val payload = statePayload.payload(prevState, stateWithEvents.state)
+                        val payload = statePayload.payload(prevState?.state, stateWithEvents.state)
                         resumedView?.renderState(
                             stateWithEvents.state,
                             stateWithEvents.events,
