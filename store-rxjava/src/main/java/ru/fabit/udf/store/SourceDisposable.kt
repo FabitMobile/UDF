@@ -2,7 +2,9 @@ package ru.fabit.udf.store
 
 import io.reactivex.disposables.Disposable
 
-class SourceDisposable {
+class SourceDisposable(
+    private val nameStore: String
+) {
     private var resources = hashMapOf<String, Disposable>()
 
     fun add(key: String, disposable: Disposable) {
@@ -26,13 +28,17 @@ class SourceDisposable {
 
     fun dispose() {
         synchronized(this) {
-            val map = resources
-            for (disposable in map) {
-                if (!disposable.value.isDisposed) {
-                    disposable.value.dispose()
+            try {
+                val map = resources
+                for (disposable in map) {
+                    if (!disposable.value.isDisposed) {
+                        disposable.value.dispose()
+                    }
                 }
+                map.clear()
+            } catch (ex: Exception) {
+                throw Exception(nameStore, ex)
             }
-            map.clear()
         }
     }
 }
