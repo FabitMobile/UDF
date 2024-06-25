@@ -37,7 +37,7 @@ abstract class BaseStore<State : Any, Action : Any>(
     )
 
     protected val disposable = CompositeDisposable()
-    protected val sourceDisposable = SourceDisposable()
+    protected val sourceDisposable = SourceDisposable(this::class.simpleName ?: "no_name")
 
     protected val actionSubject = PublishSubject.create<Action>()
     protected val stateSubject = BehaviorSubject.createDefault(storeKit.startState)
