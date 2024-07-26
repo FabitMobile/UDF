@@ -6,15 +6,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import ru.fabit.udf.store.Store
+import ru.fabit.udf.store.coroutines.Store
 
-abstract class ViewControllerForView<State, Action, View : StateView<State>>(
+abstract class ViewControllerForView<State, Action>(
     protected val store: Store<State, Action>
 ) : LifecycleEventObserver {
     private var isFirstAttach = true
     protected var isAttach = false
 
-    private var view: View? = null
+    private var view: StateView<State>? = null
 
     private var subscription: Job? = null
 
@@ -39,7 +39,7 @@ abstract class ViewControllerForView<State, Action, View : StateView<State>>(
         when (event) {
             Lifecycle.Event.ON_RESUME -> {
                 isAttach = true
-                view = source as View
+                view = source as StateView<State>
                 subscription = source.lifecycleScope.launch {
                     store.state.collect {
                         view?.renderState(it)
