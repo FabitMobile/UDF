@@ -1,4 +1,6 @@
 # UDF - Unidirectional Data Flow
+[![](https://www.jitpack.io/v/FabitMobile/udf.svg)](https://www.jitpack.io/#FabitMobile/udf)
+
 Check [wiki](https://github.com/FabitMobile/UDF/wiki/Core) for more information 
 ## Download
 Library is distributed through JitPack
