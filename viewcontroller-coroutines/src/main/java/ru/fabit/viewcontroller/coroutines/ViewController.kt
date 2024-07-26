@@ -8,16 +8,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import ru.fabit.udf.store.Store
+import ru.fabit.udf.store.coroutines.Store
 
-abstract class ViewController<State, Action, View : StateView<State>>(
+abstract class ViewController<State, Action>(
     protected val store: Store<State, Action>,
     private val savedStateHandle: SavedStateHandle? = null
 ) : ViewModel(), LifecycleEventObserver {
     private var isFirstAttach = true
     protected var isAttach = false
 
-    private var view: View? = null
+    private var view: StateView<State>? = null
 
     private var subscription: Job? = null
 
@@ -32,7 +32,7 @@ abstract class ViewController<State, Action, View : StateView<State>>(
     protected open fun firstViewAttach() {}
 
     fun setArguments(mapArgument: Map<String, Any?>) {
-        mapArgument.forEach {entry ->
+        mapArgument.forEach { entry ->
             savedStateHandle?.set(entry.key, entry.value)
         }
     }
@@ -46,7 +46,7 @@ abstract class ViewController<State, Action, View : StateView<State>>(
         when (event) {
             Lifecycle.Event.ON_RESUME -> {
                 isAttach = true
-                view = source as View
+                view = source as StateView<State>
                 subscription = viewModelScope.launch {
                     store.state.collect {
                         view?.renderState(it)
@@ -58,11 +58,13 @@ abstract class ViewController<State, Action, View : StateView<State>>(
                     firstViewAttach()
                 }
             }
+
             Lifecycle.Event.ON_PAUSE -> {
                 onPause()
                 isAttach = false
                 subscription?.cancel()
             }
+
             else -> {}
         }
     }

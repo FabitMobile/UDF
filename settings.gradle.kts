@@ -17,4 +17,5 @@ rootProject.name = "UDF"
 include(":store-rxjava")
 include(":store-coroutines")
 include(":viewcontroller-compose")
+include(":viewcontroller-coroutines")
 include(":viewcontroller-view-rxjava")
