@@ -1,5 +1,6 @@
 package ru.fabit.udf.store.coroutines
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -14,6 +15,7 @@ import ru.fabit.udf.store.coroutines.counter.CounterBindActionSource
 import ru.fabit.udf.store.coroutines.counter.CounterReducer
 import ru.fabit.udf.store.coroutines.counter.CounterState
 import ru.fabit.udf.store.coroutines.counter.CounterStore
+import ru.fabit.udf.store.coroutines.internal.log
 import ru.fabit.udf.store.coroutines.order.OrderAction
 import ru.fabit.udf.store.coroutines.order.OrderActionSource
 import ru.fabit.udf.store.coroutines.order.OrderBindActionSource
@@ -24,12 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class TestStoreTest {
 
-    private val errorHandler =
-        object : ErrorHandler {
-            override fun handle(t: Throwable) {
-                t.printStackTrace()
-            }
-        }
+    private val errorHandler = ErrorHandler { t -> t.printStackTrace() }
 
     private fun store() = TestStore(
         StoreKit.build(
@@ -224,6 +221,33 @@ class TestStoreTest {
 
         val store = storeMini()
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            store.stateWithEvents.collect { stateWithEvents ->
+                log(stateWithEvents)
+                events.add(stateWithEvents.events)
+                log("1232")
+            }
+        }
+        delay(100)
+        store.dispatchAction(TestAction.BindAction4("1"))
+        delay(100)
+        store.dispose()
+        job.cancel()
+        Assert.assertEquals(
+            1,
+            events.flatten().size
+        )
+        Assert.assertEquals(
+            TestEvent.Event,
+            events.flatten().first()
+        )
+    }
+
+    @Test
+    fun `test events from separate channel`() = runBlocking {
+        val events = mutableListOf<List<TestEvent>>()
+
+        val store = storeMini()
+        val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.eventsFlow.collect { event ->
                 events.add(event)
             }
@@ -248,6 +272,41 @@ class TestStoreTest {
      */
     @Test
     fun `test fast events`() = runBlocking {
+        val events = mutableListOf<List<TestEvent>>()
+
+        val store = storeMini()
+        val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            store.stateWithEvents.collect { stateWithEvents ->
+                events.add(stateWithEvents.events)
+            }
+        }
+        delay(100)
+        store.dispatchAction(TestAction.EventAction)
+        delay(1)
+        store.dispatchAction(TestAction.EventAction)
+        delay(1)
+        store.dispatchAction(TestAction.OrderEventAction(0))
+        delay(100)
+        store.dispose()
+        job.cancel()
+        Assert.assertEquals(
+            4,
+            events.flatten().size
+        )
+        Assert.assertEquals(
+            TestEvent.Event,
+            events.flatten().first()
+        )
+        Assert.assertTrue(
+            events.flatten().last() is TestEvent.OrderEvent
+        )
+    }
+
+    /**
+     * Эвенты не теряются, если приходят в один момент времени
+     */
+    @Test
+    fun `test fast events from separate channel`() = runBlocking {
         val events = mutableListOf<List<TestEvent>>()
 
         val store = storeMini()
@@ -280,6 +339,36 @@ class TestStoreTest {
 
     @Test
     fun `test events with resubscribe`() = runBlocking {
+        val events = mutableListOf<List<TestEvent>>()
+
+        val store = storeMini()
+        val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            store.stateWithEvents.collect { stateWithEvents ->
+                events.add(stateWithEvents.events)
+            }
+        }
+        delay(100)
+        job.cancel()
+        val job2 = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            store.stateWithEvents.collect { stateWithEvents ->
+                events.add(stateWithEvents.events)
+            }
+        }
+        delay(100)
+        store.dispose()
+        job2.cancel()
+        Assert.assertEquals(
+            1,
+            events.flatten().size
+        )
+        Assert.assertEquals(
+            TestEvent.Event,
+            events.flatten().first()
+        )
+    }
+
+    @Test
+    fun `test events with resubscribe from separate channel`() = runBlocking {
         val events = mutableListOf<List<TestEvent>>()
 
         val store = storeMini()
@@ -365,6 +454,40 @@ class TestStoreTest {
             )
         ).apply { start() }
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            store.stateWithEvents.collect { stateWithEvents ->
+                events.addAll(stateWithEvents.events)
+            }
+        }
+        delay(1000)
+        store.dispatchAction(TestAction.EventAction)
+        store.dispatchAction(TestAction.NoAction)
+        store.dispatchAction(TestAction.NoAction)
+        store.dispatchAction(TestAction.NoAction)
+        store.dispatchAction(TestAction.OrderEventAction(0))
+        store.dispatchAction(TestAction.Action("Action1-1"))
+        store.dispatchAction(TestAction.Action("Action1-2"))
+        store.dispatchAction(TestAction.Action("Action1-3"))
+        delay(100)
+        Assert.assertEquals(
+            2,
+            events.count()
+        )
+        store.dispose()
+        job.cancel()
+    }
+
+    @Test
+    fun cleaning_event_test_from_separate_channel() = runBlocking {
+        val events = mutableSetOf<TestEvent>()
+        val store = TestStore(
+            StoreKit.build(
+                TestState("init"),
+                TestReducer(),
+                errorHandler,
+                TestAction.NoAction
+            )
+        ).apply { start() }
+        val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.eventsFlow.collect { event ->
                 events.addAll(event)
             }
@@ -423,7 +546,39 @@ class TestStoreTest {
     }
 
     @Test
-    fun order_merging_events() = runBlocking {
+    fun order_merging_events1() = runBlocking {
+        val events = mutableListOf<TestEvent>()
+        val store = TestStore(
+            StoreKit.build(
+                TestState("init"),
+                TestReducer(),
+                errorHandler,
+                TestAction.OrderEventAction(0)
+            )
+        ).apply { start() }
+        delay(100)
+        store.dispatchAction(TestAction.OrderEventAction(1))
+        delay(100)
+        store.dispatchAction(TestAction.OrderEventAction(2))
+        delay(100)
+        store.dispatchAction(TestAction.OrderEventAction(3))
+        delay(100)
+        val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            store.stateWithEvents.collect { stateWithEvents ->
+                events.addAll(stateWithEvents.events)
+            }
+        }
+        delay(100)
+        Assert.assertEquals(
+            listOf(0, 1, 2, 3),
+            events.map { (it as TestEvent.OrderEvent).order }
+        )
+        store.dispose()
+        job.cancel()
+    }
+
+    @Test
+    fun order_merging_events_from_separate_channel() = runBlocking {
         val events = mutableListOf<TestEvent>()
         val store = TestStore(
             StoreKit.build(

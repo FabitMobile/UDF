@@ -1,5 +1,5 @@
 package ru.fabit.viewcontroller.coroutines
 
-interface StateView<State> {
-    fun renderState(state: State)
+fun interface StateView<State> {
+    fun renderState(state: State, payload: Any?)
 }
