@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
@@ -15,7 +16,7 @@ import java.util.concurrent.atomic.AtomicReference
 abstract class ViewController<State : Any, Action : Any>(
     private val store: Store<State, Action>,
     protected val statePayload: StatePayload<State>? = null
-) : LifecycleEventObserver {
+) : ViewModel(), LifecycleEventObserver {
 
     init {
         store.start()
@@ -129,7 +130,7 @@ abstract class ViewController<State : Any, Action : Any>(
 
     protected open fun onStop(lifecycleOwner: LifecycleOwner) {}
 
-    protected fun destroy(lifecycleOwner: LifecycleOwner) {
+    private fun destroy(lifecycleOwner: LifecycleOwner) {
         if (lifecycleOwner == this.createdView) {
             store.dispose()
         }

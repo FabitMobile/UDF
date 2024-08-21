@@ -16,7 +16,6 @@ rx-android = "2.1.1"
 kaspresso = "1.5.3"
 fragment-test = "1.6.1"
 material = "1.8.0"
-hilt = "2.42"
 kotlin-stdlib = "1.6.21"
 activity-ktx = "1.5.0"
 fragment-ktx = "1.5.0"
@@ -46,7 +45,6 @@ rx-java = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rx-j
 rx-android = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rx-android" }
 kaspresso = { group = "com.kaspersky.android-components", name = "kaspresso", version.ref = "kaspresso" }
 fragment-test = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragment-test" }
-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
