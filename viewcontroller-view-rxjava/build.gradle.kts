@@ -34,6 +34,7 @@ android {
 }
 
 dependencies {
+    api(project(":viewcontroller-core"))
     api(project(":store-rxjava"))
 
     implementation(libs.core.ktx)

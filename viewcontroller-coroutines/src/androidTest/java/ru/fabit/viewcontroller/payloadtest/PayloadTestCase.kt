@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 import ru.fabit.udf.store.coroutines.ErrorHandler
 import ru.fabit.udf.store.coroutines.StoreKit
 import ru.fabit.viewcontroller.awaitDebug
-import ru.fabit.viewcontroller.coroutines.EventsView
+import ru.fabit.viewcontroller.core.EventsView
 import ru.fabit.viewcontroller.teststore.TestAction
 import ru.fabit.viewcontroller.teststore.TestActionSource
 import ru.fabit.viewcontroller.teststore.TestActionSource2

@@ -6,6 +6,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.fabit.udf.store.coroutines.EventsStore
 import ru.fabit.udf.store.coroutines.StateWithEvents
+import ru.fabit.viewcontroller.core.EventsView
+import ru.fabit.viewcontroller.core.StatePayload
 import ru.fabit.viewcontroller.coroutines.internal.log
 import java.util.concurrent.atomic.AtomicReference
 

@@ -1,6 +1,6 @@
 package ru.fabit.viewcontroller.payloadtest
 
-import ru.fabit.viewcontroller.coroutines.StatePayload
+import ru.fabit.viewcontroller.core.StatePayload
 import ru.fabit.viewcontroller.teststore.TestState
 
 class TestStatePayload : StatePayload<TestState> {

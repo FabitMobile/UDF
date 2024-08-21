@@ -2,7 +2,7 @@ package ru.fabit.viewcontroller.payloadtest
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import ru.fabit.viewcontroller.coroutines.EventsView
+import ru.fabit.viewcontroller.core.EventsView
 import ru.fabit.viewcontroller.coroutines.internal.log
 import ru.fabit.viewcontroller.coroutines.registerViewController
 import ru.fabit.viewcontroller.teststore.TestEvent

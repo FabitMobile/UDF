@@ -10,7 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import ru.fabit.udf.store.ErrorHandler
 import ru.fabit.udf.store.StoreKit
-import ru.fabit.viewcontroller.viewrxjava.EventsView
+import ru.fabit.viewcontroller.core.EventsView
 import ru.fabit.viewcontroller.viewrxjava.awaitDebug
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestAction
 import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource

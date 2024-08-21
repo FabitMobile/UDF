@@ -7,6 +7,8 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.fabit.udf.store.coroutines.BaseStore
+import ru.fabit.viewcontroller.core.StatePayload
+import ru.fabit.viewcontroller.core.StateView
 import ru.fabit.viewcontroller.coroutines.internal.log
 import java.util.concurrent.atomic.AtomicReference
 
