@@ -1,4 +1,4 @@
-package ru.fabit.viewcontroller.eventtest
+package ru.fabit.viewcontroller.payloadtest
 
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -22,9 +22,9 @@ import ru.fabit.viewcontroller.teststore.TestState
 import ru.fabit.viewcontroller.teststore.TestStore
 
 @RunWith(AndroidJUnit4::class)
-class EventsTestCase : TestCase() {
+class PayloadTestCase : TestCase() {
 
-    private lateinit var scenario: FragmentScenario<TestFragment>
+    private lateinit var scenario: FragmentScenario<PayloadFragment>
 
     private val errorHandler = ErrorHandler { t -> t.printStackTrace() }
 
@@ -62,12 +62,29 @@ class EventsTestCase : TestCase() {
         TestState(9)
     )
 
+    /**
+     * получили payload
+     */
+    private val resultPayload = listOf(
+        Change.TestChange
+    )
+
     private val events = mutableListOf<TestEvent>()
     private val states = mutableListOf<TestState>()
+    private val payload = mutableListOf<Change>()
 
-    private var eventsView = EventsView<TestState, TestEvent> { s, e, _ ->
+    private var eventsView = EventsView<TestState, TestEvent> { s, e, p ->
         events.addAll(e)
         states.add(s)
+
+        p as List<*>?
+        p?.forEach { change ->
+            when (change) {
+                is Change.TestChange -> {
+                    payload.add(change)
+                }
+            }
+        }
     }
 
     @Test
@@ -83,9 +100,10 @@ class EventsTestCase : TestCase() {
                 TestActionSource3()
             )
         )
-        val viewController = EventViewController(store)
+        val testStatePayload = TestStatePayload()
+        val viewController = PayloadViewController(store, testStatePayload)
         scenario = launchFragmentInContainer {
-            TestFragment(viewController, eventsView)
+            PayloadFragment(viewController, eventsView)
         }
     }.after {}.run {
         step("Launch TestFragment") {
@@ -96,6 +114,7 @@ class EventsTestCase : TestCase() {
             awaitDebug(4000)
             Assert.assertEquals(resultEvents, events)
             Assert.assertEquals(resultStates, states)
+            Assert.assertEquals(resultPayload, payload)
         }
     }
 }

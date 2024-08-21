@@ -16,24 +16,30 @@ open class EventsStore<State, Action, Event>(storeKit: StoreKit<State, Action>) 
 
     private var isEventsFlowConnected = false
 
-    val eventsFlow: Flow<List<Event>> = _eventsFlow
-        .onSubscription {
-            _eventsFlow.emit(accumulatedEvents)
-            isEventsFlowConnected = true
-            accumulatedEvents = listOf()
-        }
-        .onCompletion {
-            isEventsFlowConnected = false
+    val eventsFlow: Flow<List<Event>>
+        get() {
+            _eventsFlow.tryEmit(accumulatedEvents)
+            return _eventsFlow
+                .onSubscription {
+                    isEventsFlowConnected = true
+                    accumulatedEvents = listOf()
+                }
+                .onCompletion {
+                    isEventsFlowConnected = false
+                }
         }
 
-    val stateWithEvents: Flow<StateWithEvents<State, Event>> = _stateWithEventsFlow
-        .onSubscription {
-            _stateWithEventsFlow.emit(StateWithEvents(currentState, accumulatedEvents))
-            isEventsFlowConnected = true
-            accumulatedEvents = listOf()
-        }
-        .onCompletion {
-            isEventsFlowConnected = false
+    val stateWithEvents: Flow<StateWithEvents<State, Event>>
+        get() {
+            _stateWithEventsFlow.tryEmit(StateWithEvents(currentState, accumulatedEvents))
+            return _stateWithEventsFlow
+                .onSubscription {
+                    isEventsFlowConnected = true
+                    accumulatedEvents = listOf()
+                }
+                .onCompletion {
+                    isEventsFlowConnected = false
+                }
         }
 
     override suspend fun reduceState(state: State, action: Action): State {
