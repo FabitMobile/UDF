@@ -1,6 +1,5 @@
 package ru.fabit.udf.store.coroutines
 
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,7 +14,6 @@ import ru.fabit.udf.store.coroutines.counter.CounterBindActionSource
 import ru.fabit.udf.store.coroutines.counter.CounterReducer
 import ru.fabit.udf.store.coroutines.counter.CounterState
 import ru.fabit.udf.store.coroutines.counter.CounterStore
-import ru.fabit.udf.store.coroutines.internal.log
 import ru.fabit.udf.store.coroutines.order.OrderAction
 import ru.fabit.udf.store.coroutines.order.OrderActionSource
 import ru.fabit.udf.store.coroutines.order.OrderBindActionSource
@@ -222,9 +220,7 @@ class TestStoreTest {
         val store = storeMini()
         val job = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             store.stateWithEvents.collect { stateWithEvents ->
-                log(stateWithEvents)
                 events.add(stateWithEvents.events)
-                log("1232")
             }
         }
         delay(100)

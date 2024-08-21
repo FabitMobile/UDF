@@ -2,7 +2,6 @@ package ru.fabit.udf.store.coroutines
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onSubscription
 import ru.fabit.udf.store.coroutines.internal.log
@@ -29,12 +28,8 @@ open class EventsStore<State, Action, Event>(storeKit: StoreKit<State, Action>) 
 
     val stateWithEvents: Flow<StateWithEvents<State, Event>> = _stateWithEventsFlow
         .onSubscription {
-            isEventsFlowConnected = true
-
-            val currentState = _stateWithEventsFlow.lastOrNull()?.state ?: return@onSubscription
             _stateWithEventsFlow.emit(StateWithEvents(currentState, accumulatedEvents))
-            log("_____$currentState")
-            log("_____$accumulatedEvents")
+            isEventsFlowConnected = true
             accumulatedEvents = listOf()
         }
         .onCompletion {
@@ -50,11 +45,9 @@ open class EventsStore<State, Action, Event>(storeKit: StoreKit<State, Action>) 
             if (isEventsFlowConnected) {
                 _eventsFlow.emit(newEvents)
                 _stateWithEventsFlow.emit(StateWithEvents(newState, newEvents))
-                log("1")
             } else {
                 val accumulatedEvents = accumulatedEvents + newEvents
                 this.accumulatedEvents = accumulatedEvents
-                log("2")
             }
             newState
         } else

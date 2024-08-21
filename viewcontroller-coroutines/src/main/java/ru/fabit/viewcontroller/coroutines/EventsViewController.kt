@@ -6,6 +6,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.fabit.udf.store.coroutines.EventsStore
 import ru.fabit.udf.store.coroutines.StateWithEvents
+import ru.fabit.viewcontroller.coroutines.internal.log
 import java.util.concurrent.atomic.AtomicReference
 
 abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
@@ -27,10 +28,11 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
                 val state = stateWithEvents.state
                 val events = stateWithEvents.events
 
+                log("EventsViewController: state = $state, events = $events")
                 val prevState = sharedState.get()
-                if (isAttach && (prevState != state)) {
+                if (isAttach) {
                     if (statePayload == null) {
-                        resumedView?.renderState(state, null)
+                        resumedView?.renderState(state, events, null)
                     } else {
                         val payload = statePayload.payload(prevState?.state, state)
                         resumedView?.renderState(state, events, payload)
@@ -45,8 +47,8 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
         }
     }
 
-    override fun onPause(lifecycleOwner: LifecycleOwner) {
-        super.onPause(lifecycleOwner)
+    override fun onPause(source: LifecycleOwner) {
+        super.onPause(source)
         stateSubscription?.cancel()
     }
 }

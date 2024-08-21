@@ -63,7 +63,7 @@ abstract class ViewController<State, Action>(
         stateSubscription = viewModelScope.launch {
             store.state.collect { state ->
                 val prevState = sharedState.get()
-                if (isAttach && (prevState != state)) {
+                if (isAttach) {
                     if (statePayload == null) {
                         view?.renderState(state, null)
                     } else {

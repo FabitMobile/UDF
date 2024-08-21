@@ -5,4 +5,4 @@ internal fun log(message: Any?) {
         println("UDF.Store.Coroutines: $message")
 }
 
-private const val LOG_ENABLED = true
+private const val LOG_ENABLED = false

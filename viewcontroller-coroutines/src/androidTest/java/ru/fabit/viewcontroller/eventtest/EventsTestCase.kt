@@ -20,6 +20,7 @@ import ru.fabit.viewcontroller.teststore.TestEvent
 import ru.fabit.viewcontroller.teststore.TestReducer
 import ru.fabit.viewcontroller.teststore.TestState
 import ru.fabit.viewcontroller.teststore.TestStore
+import ru.fabit.viewcontroller.coroutines.internal.log
 
 @RunWith(AndroidJUnit4::class)
 class EventsTestCase : TestCase() {
@@ -65,7 +66,7 @@ class EventsTestCase : TestCase() {
     private val events = mutableListOf<TestEvent>()
     private val states = mutableListOf<TestState>()
 
-    private var eventsView = EventsView<TestState, TestEvent> { s, e, p ->
+    private var eventsView = EventsView<TestState, TestEvent> { s, e, _ ->
         events.addAll(e)
         states.add(s)
     }
@@ -94,17 +95,8 @@ class EventsTestCase : TestCase() {
             awaitDebug(4000)
             scenario.moveToState(Lifecycle.Event.ON_RESUME.targetState)
             awaitDebug(4000)
-//            Assert.assertEquals(resultEvents, events)
+            Assert.assertEquals(resultEvents, events)
             Assert.assertEquals(resultStates, states)
         }
     }
 }
-
-//expected:<[TestState(value=-1), TestState(value=666), TestState(value=0), TestState(value=1), TestState(value=5), TestState(value=6), TestState(value=7777), TestState(value=7), TestState(value=8), TestState(value=9)]>
-//but was:<[TestState(value=-1), TestState(value=-1), TestState(value=666), TestState(value=666), TestState(value=0), TestState(value=0), TestState(value=1)]>
-
-//expected:<[TestState(value=-1), TestState(value=666), TestState(value=0), TestState(value=1), TestState(value=5), TestState(value=6), TestState(value=7777), TestState(value=7), TestState(value=8), TestState(value=9)]>
-//but was:<[TestState(value=666), TestState(value=666), TestState(value=7777), TestState(value=7777), TestState(value=0), TestState(value=0), TestState(value=1)]>
-
-//expected:<[TestState(value=-1), TestState(value=666), TestState(value=0), TestState(value=1), TestState(value=5), TestState(value=6), TestState(value=7777), TestState(value=7), TestState(value=8), TestState(value=9)]>
-//but was:<[TestState(value=-1), TestState(value=666), TestState(value=0), TestState(value=1), TestState(value=5), TestState(value=6), TestState(value=7), TestState(value=7777), TestState(value=8), TestState(value=9)]>
