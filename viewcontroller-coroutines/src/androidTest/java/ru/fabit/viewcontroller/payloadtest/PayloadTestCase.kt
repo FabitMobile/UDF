@@ -1,30 +1,30 @@
-package ru.fabit.viewcontroller.viewrxjava.eventtest
+package ru.fabit.viewcontroller.payloadtest
 
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
-import org.junit.Assert.*
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
-import ru.fabit.udf.store.ErrorHandler
-import ru.fabit.udf.store.StoreKit
+import ru.fabit.udf.store.coroutines.ErrorHandler
+import ru.fabit.udf.store.coroutines.StoreKit
+import ru.fabit.viewcontroller.awaitDebug
 import ru.fabit.viewcontroller.core.EventsView
-import ru.fabit.viewcontroller.viewrxjava.awaitDebug
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestAction
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource2
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestActionSource3
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestEvent
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestReducer
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestState
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestStore
+import ru.fabit.viewcontroller.teststore.TestAction
+import ru.fabit.viewcontroller.teststore.TestActionSource
+import ru.fabit.viewcontroller.teststore.TestActionSource2
+import ru.fabit.viewcontroller.teststore.TestActionSource3
+import ru.fabit.viewcontroller.teststore.TestEvent
+import ru.fabit.viewcontroller.teststore.TestReducer
+import ru.fabit.viewcontroller.teststore.TestState
+import ru.fabit.viewcontroller.teststore.TestStore
 
 @RunWith(AndroidJUnit4::class)
-class EventsTestCase : TestCase() {
+class PayloadTestCase : TestCase() {
 
-    private lateinit var scenario: FragmentScenario<TestFragment>
+    private lateinit var scenario: FragmentScenario<PayloadFragment>
 
     private val errorHandler = ErrorHandler { t -> t.printStackTrace() }
 
@@ -56,18 +56,35 @@ class EventsTestCase : TestCase() {
         TestState(1),
         TestState(5),
         TestState(6),
-        TestState(7777),
         TestState(7),
+        TestState(7777),
         TestState(8),
         TestState(9)
     )
 
+    /**
+     * получили payload
+     */
+    private val resultPayload = listOf(
+        Change.TestChange
+    )
+
     private val events = mutableListOf<TestEvent>()
     private val states = mutableListOf<TestState>()
+    private val payload = mutableListOf<Change>()
 
     private var eventsView = EventsView<TestState, TestEvent> { s, e, p ->
         events.addAll(e)
         states.add(s)
+
+        p as List<*>?
+        p?.forEach { change ->
+            when (change) {
+                is Change.TestChange -> {
+                    payload.add(change)
+                }
+            }
+        }
     }
 
     @Test
@@ -83,9 +100,10 @@ class EventsTestCase : TestCase() {
                 TestActionSource3()
             )
         )
-        val viewController = EventViewController(store)
+        val testStatePayload = TestStatePayload()
+        val viewController = PayloadViewController(store, testStatePayload)
         scenario = launchFragmentInContainer {
-            TestFragment(viewController, eventsView)
+            PayloadFragment(viewController, eventsView)
         }
     }.after {}.run {
         step("Launch TestFragment") {
@@ -94,8 +112,9 @@ class EventsTestCase : TestCase() {
             awaitDebug(4000)
             scenario.moveToState(Lifecycle.Event.ON_RESUME.targetState)
             awaitDebug(4000)
-            assertEquals(resultEvents, events)
-            assertEquals(resultStates, states)
+            Assert.assertEquals(resultEvents, events)
+            Assert.assertEquals(resultStates, states)
+            Assert.assertEquals(resultPayload, payload)
         }
     }
 }

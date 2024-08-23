@@ -14,6 +14,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "UDF"
+include(":viewcontroller-core")
 include(":store-rxjava")
 include(":store-coroutines")
 include(":viewcontroller-compose")

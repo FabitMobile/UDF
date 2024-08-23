@@ -1,12 +1,12 @@
-package ru.fabit.viewcontroller.viewrxjava.eventtest
+package ru.fabit.viewcontroller.eventtest
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import ru.fabit.viewcontroller.core.EventsView
-import ru.fabit.viewcontroller.viewrxjava.internal.log
-import ru.fabit.viewcontroller.viewrxjava.registerViewController
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestEvent
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestState
+import ru.fabit.viewcontroller.coroutines.internal.log
+import ru.fabit.viewcontroller.coroutines.registerViewController
+import ru.fabit.viewcontroller.teststore.TestEvent
+import ru.fabit.viewcontroller.teststore.TestState
 
 class TestFragment(
     private val viewController: EventViewController,

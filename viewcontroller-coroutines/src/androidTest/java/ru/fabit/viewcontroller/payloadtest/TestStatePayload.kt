@@ -1,7 +1,7 @@
-package ru.fabit.viewcontroller.viewrxjava.payloadtest
+package ru.fabit.viewcontroller.payloadtest
 
 import ru.fabit.viewcontroller.core.StatePayload
-import ru.fabit.viewcontroller.viewrxjava.teststore.TestState
+import ru.fabit.viewcontroller.teststore.TestState
 
 class TestStatePayload : StatePayload<TestState> {
     override fun payload(prevState: TestState?, newState: TestState): Any? {

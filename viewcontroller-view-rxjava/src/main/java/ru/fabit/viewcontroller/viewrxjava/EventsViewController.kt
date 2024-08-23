@@ -6,6 +6,8 @@ import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
 import ru.fabit.udf.store.EventsStore
 import ru.fabit.udf.store.StateWithEvents
+import ru.fabit.viewcontroller.core.EventsView
+import ru.fabit.viewcontroller.core.StatePayload
 import java.util.concurrent.atomic.AtomicReference
 
 abstract class EventsViewController<State : Any, Action : Any, Event : Any>(

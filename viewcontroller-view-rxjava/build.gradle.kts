@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "ru.fabit.viewcontroller.viewrxjava"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 21
@@ -34,12 +34,14 @@ android {
 }
 
 dependencies {
-
+    api(project(":viewcontroller-core"))
     api(project(":store-rxjava"))
+
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.rx.java)
     implementation(libs.rx.android)
+    implementation(libs.lifecycle.viewmodel.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
