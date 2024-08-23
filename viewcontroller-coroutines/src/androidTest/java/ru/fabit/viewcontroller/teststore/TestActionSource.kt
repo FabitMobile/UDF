@@ -4,12 +4,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import ru.fabit.udf.store.coroutines.ActionSource
 import ru.fabit.viewcontroller.interval
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class TestActionSource : ActionSource<TestAction>(
     source = {
         flow {
-            interval(1000, TimeUnit.MILLISECONDS).collect {
+            interval(1.seconds).collect {
                 emit(TestAction.EventValue(it.toInt()))
             }
         }
