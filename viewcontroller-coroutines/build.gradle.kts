@@ -6,10 +6,10 @@ plugins {
 
 android {
     namespace = "ru.fabit.viewcontroller.coroutines"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
-        minSdk = 23
+        minSdk = 21
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")

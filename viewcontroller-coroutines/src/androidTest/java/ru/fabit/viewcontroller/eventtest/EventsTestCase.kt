@@ -47,7 +47,7 @@ class EventsTestCase : TestCase() {
     )
 
     /**
-     * несколько стейтов потерялось когда фрагмен был на паузе
+     * несколько стейтов потерялось когда фрагмент был на паузе
      */
     private val resultStates = listOf(
         TestState(-1),

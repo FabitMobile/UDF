@@ -62,6 +62,7 @@ abstract class ViewControllerForView<State, Action>(
         stateSubscription = source.lifecycleScope.launch {
             store.state.collect { state ->
                 val prevState = sharedState.get()
+                sharedState.set(state)
                 if (isAttach) {
                     if (statePayload == null) {
                         view?.renderState(state, null)
