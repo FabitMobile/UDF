@@ -3,6 +3,7 @@ package ru.fabit.viewcontroller.viewrxjava
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
@@ -15,7 +16,7 @@ import java.util.concurrent.atomic.AtomicReference
 abstract class ViewControllerForView<State : Any, Action : Any>(
     private val store: BaseStore<State, Action>,
     private val statePayload: StatePayload<State>? = null
-) : LifecycleEventObserver {
+) : ViewModel(), LifecycleEventObserver {
 
     init {
         store.start()
