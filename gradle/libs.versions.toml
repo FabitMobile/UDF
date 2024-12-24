@@ -21,6 +21,12 @@ activity-ktx = "1.5.0"
 fragment-ktx = "1.5.0"
 lifecycle-viewmodel-ktx = "2.5.0"
 
+#Deps for example-app
+activity = "1.9.3"
+constraintlayout = "2.2.0"
+hilt = "2.48.1"
+hilt-androidx = "1.1.0"
+
 [libraries]
 coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin-stdlib" }
@@ -46,8 +52,21 @@ rx-android = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref =
 kaspresso = { group = "com.kaspersky.android-components", name = "kaspresso", version.ref = "kaspresso" }
 fragment-test = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragment-test" }
 
+#Deps for example-app
+example-androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+example-androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+example-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+example-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+example-hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-androidx" }
+example-androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+example-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+example-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
 com-android-library = { id = "com.android.library", version.ref = "agp" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
+
+#Deps for example-app
+example-dagger-hilt-android-plugin = { id = "dagger.hilt.android.plugin", version.ref = "hilt" }

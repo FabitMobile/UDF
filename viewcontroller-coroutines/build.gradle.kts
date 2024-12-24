@@ -34,8 +34,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":viewcontroller-core"))
-    implementation(project(":store-coroutines"))
+    api(project(":viewcontroller-core"))
+    api(project(":store-coroutines"))
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

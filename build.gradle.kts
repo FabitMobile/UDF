@@ -8,3 +8,13 @@ plugins {
     id("maven-publish")
 }
 true // Needed to make the Suppress annotation work for the plugins block
+
+buildscript {
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            when {
+                requested.name == "javapoet" -> useVersion("1.13.0")
+            }
+        }
+    }
+}
