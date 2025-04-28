@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.example.dagger.hilt.android.plugin)
+    alias(libs.plugins.compose.compiler)
     id("kotlin-kapt")
 }
 
@@ -39,9 +40,6 @@ android {
         viewBinding = true
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
-    }
 }
 
 dependencies {
@@ -51,11 +49,11 @@ dependencies {
 
     implementation(libs.example.hilt.android)
     implementation(libs.example.hilt.navigation)
-    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.lifecycle.compose)
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
-    implementation(libs.ui)
-    implementation(libs.ui.graphics)
+    implementation(libs.example.ui)
+    implementation(libs.example.ui.graphics)
     implementation(libs.example.androidx.ui.tooling.preview)
     implementation(libs.example.androidx.material3)
     androidTestImplementation(platform(libs.compose.bom))

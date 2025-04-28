@@ -38,12 +38,10 @@ dependencies {
     api(project(":store-coroutines"))
 
     implementation(libs.core.ktx)
-    implementation(libs.appcompat)
     implementation(libs.coroutines)
-    implementation(libs.kotlin.stdlib)
-    implementation(libs.activity.ktx)
     implementation(libs.fragment.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
