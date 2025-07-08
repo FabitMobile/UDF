@@ -21,10 +21,10 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
     private var stateSubscription: Job? = null
 
     @Suppress("UNCHECKED_CAST")
-    override fun onResume(source: LifecycleOwner) {
-        isAttach = true
-        val resumedView = source as? EventsView<State, Event>
-        view = resumedView
+    override fun onResume(lifecycleOwner: LifecycleOwner) {
+        isAttached = true
+        val resumedView = lifecycleOwner as? EventsView<State, Event>
+        this.resumedView = resumedView
         stateSubscription = viewModelScope.launch {
             store.stateWithEvents.collect { stateWithEvents ->
                 val state = stateWithEvents.state
@@ -33,7 +33,8 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
                 log("EventsViewController: state = $state, events = $events")
                 val prevState = sharedState.get()
                 sharedState.set(stateWithEvents)
-                if (isAttach) {
+                if (isAttached) {
+                    val statePayload = statePayload
                     if (statePayload == null) {
                         resumedView?.renderState(state, events, null)
                     } else {
@@ -50,8 +51,8 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
         }
     }
 
-    override fun onPause(source: LifecycleOwner) {
-        super.onPause(source)
+    override fun onPause(lifecycleOwner: LifecycleOwner) {
+        super.onPause(lifecycleOwner)
         stateSubscription?.cancel()
     }
 }

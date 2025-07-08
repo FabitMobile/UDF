@@ -32,6 +32,7 @@ abstract class EventsViewController<State : Any, Action : Any, Event : Any>(
                 val prevState = sharedState.get()
                 if (isAttached && (prevState != stateWithEvents)) {
                     sharedState.set(stateWithEvents)
+                    val statePayload = statePayload
                     if (statePayload == null) {
                         resumedView?.renderState(
                             stateWithEvents.state,
