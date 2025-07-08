@@ -5,11 +5,10 @@ plugins {
 }
 
 android {
-    namespace = "ru.fabit.viewcontroller.viewrxjava"
+    namespace = "ru.fabit.viewcontroller.core"
     compileSdk = 34
 
     defaultConfig {
-        //Для запуска тестов нудно переключать на 24
         minSdk = 21
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -35,26 +34,12 @@ android {
 }
 
 dependencies {
-    api(project(":viewcontroller-core"))
-    api(project(":store-rxjava"))
+    api(project(":store-coroutines"))
 
     implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-    implementation(libs.rx.java)
-    implementation(libs.rx.android)
-    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.coroutines)
     implementation(libs.fragment.ktx)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.kaspresso)
-    debugImplementation(libs.material)
-    debugImplementation(libs.fragment.test)
+    implementation(libs.lifecycle.viewmodel.ktx)
 }
 
 apply(from = "../android_publish.gradle")
-
-tasks.register("rxInitTest") {
-    dependsOn(":viewcontroller-view-rxjava:installDebugAndroidTest")
-    dependsOn(":viewcontroller-view-rxjava:connectedDebugAndroidTest")
-}
