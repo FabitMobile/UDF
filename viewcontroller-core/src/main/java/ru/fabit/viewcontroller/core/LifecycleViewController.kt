@@ -16,7 +16,7 @@ abstract class LifecycleViewController<State, Action>(
     private var createdView: LifecycleOwner? = null
     protected var resumedView: StateView<State>? = null
     protected var isAttached = false
-    protected var isFirstAttach = false
+    protected var isFirstAttach = true
 
     protected open fun attach() {}
     protected open fun firstViewAttach() {}
@@ -25,8 +25,8 @@ abstract class LifecycleViewController<State, Action>(
 
     protected open fun onNewState(state: State) {
         val prevState = sharedState.get()
-        sharedState.set(state)
-        if (isAttached) {
+        if (isAttached && (prevState != state)) {
+            sharedState.set(state)
             val statePayload = statePayload
             if (statePayload == null) {
                 resumedView?.renderState(state, null)
@@ -63,8 +63,8 @@ abstract class LifecycleViewController<State, Action>(
 
     @Suppress("UNCHECKED_CAST")
     protected open fun onResume(lifecycleOwner: LifecycleOwner) {
-        isAttached = true
         resumedView = lifecycleOwner as? StateView<State>
+        isAttached = true
         collectState()
         attach()
         if (isFirstAttach) {
