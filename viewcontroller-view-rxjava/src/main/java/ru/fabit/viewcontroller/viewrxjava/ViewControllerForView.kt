@@ -59,4 +59,8 @@ abstract class ViewControllerForView<State : Any, Action : Any>(
         stateObserver?.dispose()
         destroy(lifecycleOwner)
     }
+
+    override fun dispose() {
+        store.dispose()
+    }
 }
