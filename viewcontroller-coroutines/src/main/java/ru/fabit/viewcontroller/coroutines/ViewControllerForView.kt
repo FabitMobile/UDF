@@ -44,6 +44,10 @@ abstract class ViewControllerForView<State, Action>(
     override fun onDestroy(lifecycleOwner: LifecycleOwner) {
         isAttached = false
         stateSubscription?.cancel()
+        destroy(lifecycleOwner)
+    }
+
+    override fun dispose() {
         store.dispose()
     }
 }

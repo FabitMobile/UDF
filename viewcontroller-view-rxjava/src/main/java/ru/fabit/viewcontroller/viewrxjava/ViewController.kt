@@ -46,4 +46,8 @@ abstract class ViewController<State : Any, Action : Any>(
         super.onPause(lifecycleOwner)
         stateObserver?.dispose()
     }
+
+    override fun onCleared() {
+        store.dispose()
+    }
 }
