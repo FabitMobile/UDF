@@ -1,7 +1,5 @@
 package ru.fabit.viewcontroller.core
 
-import android.app.Activity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -13,7 +11,6 @@ abstract class LifecycleViewController<State, Action>(
 ) : ViewModel(), LifecycleEventObserver {
 
     private val sharedState: AtomicReference<State> = AtomicReference()
-    private var createdView: LifecycleOwner? = null
     protected var resumedView: StateView<State>? = null
     protected var isAttached = false
     protected var isFirstAttach = true
@@ -25,7 +22,7 @@ abstract class LifecycleViewController<State, Action>(
 
     protected open fun onNewState(state: State) {
         val prevState = sharedState.get()
-        if (isAttached && (prevState != state)) {
+        if (isAttached && prevState != state) {
             sharedState.set(state)
             val statePayload = statePayload
             if (statePayload == null) {
@@ -55,7 +52,6 @@ abstract class LifecycleViewController<State, Action>(
     }
 
     protected open fun onCreate(lifecycleOwner: LifecycleOwner) {
-        createdView = lifecycleOwner
         sharedState.set(null)
     }
 
@@ -80,33 +76,5 @@ abstract class LifecycleViewController<State, Action>(
     protected open fun onStop(lifecycleOwner: LifecycleOwner) {}
 
     protected open fun onDestroy(lifecycleOwner: LifecycleOwner) {
-        if (lifecycleOwner is Fragment) {
-            lifecycleOwner.activity?.let { activity ->
-                if (activity.isFinishing) {
-                    destroy(lifecycleOwner)
-                } else {
-                    var anyParentIsRemoving = false
-                    var parent = lifecycleOwner.parentFragment
-                    while (!anyParentIsRemoving && parent != null) {
-                        anyParentIsRemoving = parent.isRemoving
-                        parent = parent.parentFragment
-                    }
-                    if (lifecycleOwner.isRemoving || anyParentIsRemoving) {
-                        destroy(lifecycleOwner)
-                    }
-                }
-            }
-        }
-        if (lifecycleOwner is Activity) {
-            if (lifecycleOwner.isFinishing) {
-                destroy(lifecycleOwner)
-            }
-        }
-    }
-
-    private fun destroy(lifecycleOwner: LifecycleOwner) {
-        if (lifecycleOwner == this.createdView) {
-            dispose()
-        }
     }
 }
